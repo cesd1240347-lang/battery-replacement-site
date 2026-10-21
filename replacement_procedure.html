@@ -702,4 +702,48 @@
     }
 </script>
 </body>
+    <!-- ▼▼ AI相談チャット ここから ▼▼ -->
+<div style="margin: 40px auto; max-width: 800px; padding: 25px; border: 2px solid #0070f3; border-radius: 10px; background: #f0f7ff;">
+  <h3 style="margin-top: 0; color: #0070f3;">🤖 作業で困ったらAIに相談</h3>
+  <p style="font-size: 14px; color: #555;">手順の中で分からないことや、予期せぬトラブル（ネジが外れない、バッテリーが曲がった等）があれば質問してください。AIが安全な対処法をアドバイスします。</p>
+  
+  <textarea id="ai-input" rows="3" style="width: 100%; box-sizing: border-box; padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 16px;" placeholder="例：手順3でバッテリーの両面テープが途中で切れてしまいました。どうすればいいですか？"></textarea>
+  
+  <button id="ai-submit" style="margin-top: 15px; padding: 12px 24px; background: #0070f3; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 16px; width: 100%;">AIに質問を送信する</button>
+
+  <div id="ai-response" style="margin-top: 20px; white-space: pre-wrap; line-height: 1.6; font-size: 15px; color: #333; font-weight: bold;"></div>
+</div>
+
+<script>
+  document.getElementById('ai-submit').addEventListener('click', async () => {
+    const input = document.getElementById('ai-input');
+    const responseBox = document.getElementById('ai-response');
+    const prompt = input.value.trim();
+
+    if (!prompt) return;
+
+    responseBox.textContent = 'AIが安全な対処法を考えています...（数秒お待ちください）';
+    responseBox.style.color = '#666';
+
+    try {
+      // Netlify Function（裏側のAPI）に質問を送信
+      const res = await fetch('/.netlify/functions/ask-ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt })
+      });
+      const data = await res.json();
+      
+      if (data.reply) {
+        responseBox.textContent = '【AIの回答】\n' + data.reply;
+        responseBox.style.color = '#000';
+      } else {
+        responseBox.textContent = 'エラー: ' + (data.error || '回答が得られませんでした。');
+      }
+    } catch (err) {
+      responseBox.textContent = '通信エラーが発生しました。インターネット接続を確認してください。';
+    }
+  });
+</script>
+<!-- ▲▲ AI相談チャット ここまで ▲▲ -->
 </html>
