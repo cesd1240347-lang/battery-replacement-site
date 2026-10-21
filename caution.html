@@ -247,11 +247,41 @@
         .btn-submit.ready { background: linear-gradient(135deg, var(--success), #059669); color: #fff; border-color: transparent; cursor: pointer; box-shadow: 0 8px 32px rgba(16, 185, 129, 0.3); }
         .btn-submit.ready:hover { transform: translateY(-2px); }
 
+
+        /* ─── 注意点ブロック ─── */
+        .notice-heading { font-size: 14px; font-weight: bold; color: #fff; margin: 28px 0 12px; border-left: 4px solid var(--accent); padding-left: 10px; }
+        .notice-heading.warn { border-left-color: var(--warning); }
+        .notice-heading.danger { border-left-color: var(--danger); }
+        .notice-lead { font-size: 14px; margin-bottom: 14px; }
+        .ng-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 8px; }
+        .ng-item { display: flex; gap: 12px; align-items: flex-start; background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.25); border-radius: 12px; padding: 14px 16px; }
+        .ng-icon { flex-shrink: 0; width: 32px; height: 32px; border-radius: 8px; background: rgba(239,68,68,0.18); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        .ng-title { font-size: 13px; font-weight: 800; color: #fca5a5; margin-bottom: 2px; line-height: 1.5; }
+        .ng-desc { font-size: 12px; color: #94a3b8; line-height: 1.6; }
+        .route-list { list-style: none; padding: 0; margin: 0 0 8px; counter-reset: route; }
+        .route-item { display: flex; gap: 14px; align-items: flex-start; background: #0a1528; border: 1px solid var(--card-border); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; }
+        .route-num { flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: var(--accent-glow); border: 1px solid rgba(56,189,248,0.5); color: var(--accent); font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+        .route-title { font-size: 14px; font-weight: 800; color: #fff; margin-bottom: 2px; }
+        .route-desc { font-size: 12.5px; color: #94a3b8; line-height: 1.65; }
+        .swollen-box { background: var(--warning-glow); border: 1px solid rgba(245,158,11,0.4); border-radius: 14px; padding: 18px 20px; }
+        .swollen-box .swollen-lead { font-size: 13.5px; color: #fcd34d; font-weight: 700; margin-bottom: 12px; line-height: 1.6; }
+        .swollen-steps { list-style: none; padding: 0; margin: 0; }
+        .swollen-steps li { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; color: #d1ddf0; line-height: 1.65; padding: 7px 0; border-top: 1px dashed rgba(245,158,11,0.25); }
+        .swollen-steps li:first-child { border-top: none; }
+        .swollen-steps .dot { flex-shrink: 0; color: var(--warning); font-weight: 800; }
+        .ng-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+        .ng-chip { font-size: 12.5px; font-weight: 700; color: #fca5a5; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3); border-radius: 100px; padding: 5px 14px; }
+        .ng-chip::before { content: "✕ "; font-weight: 900; }
+        .emergency-box { margin-top: 22px; background: rgba(239,68,68,0.1); border: 1px solid var(--danger); border-radius: 14px; padding: 16px 20px; }
+        .emergency-title { font-size: 14px; font-weight: 800; color: #fca5a5; margin-bottom: 6px; }
+        .emergency-box p { font-size: 13px; color: #e2e8f0; margin: 0; line-height: 1.7; }
+        .notice-foot { font-size: 12px !important; color: var(--text-sub) !important; margin-top: 18px; }
+
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         @media (max-width: 640px) {
             .card { padding: 24px 20px; }
-            .marks-grid, .video-grid, .image-grid-3, .quiz-options, .poor-quality-grid { grid-template-columns: 1fr; }
+            .marks-grid, .video-grid, .image-grid-3, .quiz-options, .poor-quality-grid, .ng-grid { grid-template-columns: 1fr; }
             header h1 { font-size: 28px; }
             .section-header-flex { flex-direction: column; align-items: flex-start; }
             .btn-more-info { width: 100%; justify-content: center; }
@@ -402,6 +432,51 @@
                 <div class="img-card"><div class="img-box"><img src="images/edion.jpg" alt="エディオン" onerror="this.style.display='none'"></div><div class="img-cap">エディオン</div></div>
                 <div class="img-card"><div class="img-box"><img src="images/ks.jpg" alt="ケーズデンキ" onerror="this.style.display='none'"></div><div class="img-cap">ケーズデンキ</div></div>
             </div>
+            <div class="notice-heading">注意点</div>
+            <p class="notice-lead">回収ボックスは「どんな電池でも預けられる場所」ではありません。次のいずれかに当てはまる場合は、<strong>店頭では断られます</strong>。</p>
+            <div class="ng-grid">
+                <div class="ng-item"><div class="ng-icon">🏷️</div><div><div class="ng-title">JBRC会員企業の製品ではない</div><div class="ng-desc">ネットで買った販売元・製造元が不明なもの、メーカー不明品など。</div></div></div>
+                <div class="ng-item"><div class="ng-icon">💢</div><div><div class="ng-title">破損・変形・膨張している</div><div class="ng-desc">水濡れしたものも対象外です。</div></div></div>
+                <div class="ng-item"><div class="ng-icon">📱</div><div><div class="ng-title">硬い外装のないパウチ型・ラミネート型</div><div class="ng-desc">スマホのバッテリーなど、端末やケースから取り出した電池は断られる可能性が高いです。</div></div></div>
+                <div class="ng-item"><div class="ng-icon">❓</div><div><div class="ng-title">種類が不明、または中型・大型品</div><div class="ng-desc">電池の種類が明確でないもの（今回はリチウムイオン電池）。AC出力付きのバッテリーやポータブル電源も対象外です。</div></div></div>
+            </div>
+
+            <div class="notice-heading warn">回収ボックスに出せない場合の出し先</div>
+            <ol class="route-list">
+                <li class="route-item"><div class="route-num">1</div><div><div class="route-title">携帯電話会社のショップ</div><div class="route-desc">携帯電話本体・電池・充電器が回収対象です（モバイル・リサイクル・ネットワーク）。取り外した電池や、膨張したものを受け付けてもらえるかは、事前に店舗へ確認してください。</div></div></li>
+                <li class="route-item"><div class="route-num">2</div><div><div class="route-title">メーカー・購入元・修理店</div><div class="route-desc">純正品はメーカーへ。交換用パーツを買った店や、交換を依頼した修理店は、古いバッテリーを引き取ってくれることがあります。</div></div></li>
+                <li class="route-item"><div class="route-num">3</div><div><div class="route-title">お住まいの自治体の窓口</div><div class="route-desc">電池の種類と状態（会員外品・膨張・取り外し済みなど）を伝えて、持ち込み先と方法を聞きます。集積所には出せず、指定施設への持ち込みになる場合もあります。</div></div></li>
+                <li class="route-item"><div class="route-num">4</div><div><div class="route-title">民間のリサイクル事業者</div><div class="route-desc">上の3つで断られたときの選択肢です。有償の場合があるので、料金と、一般家庭向けの受付があるかを確認してください。</div></div></li>
+            </ol>
+
+            <div class="notice-heading danger">膨張・変形・破損している場合</div>
+            <div class="swollen-box">
+                <div class="swollen-lead">自分で処理せず、自治体・メーカー・専門事業者に状態を伝えて指示を仰いでください。</div>
+                <ul class="swollen-steps">
+                    <li><span class="dot">●</span><span><strong>使用と充電をすぐやめる。</strong>端末に入ったままなら電源を切ります。</span></li>
+                    <li><span class="dot">●</span><span><strong>押さない・曲げない・突かない。</strong>ガスを抜こうとするのも厳禁です。</span></li>
+                    <li><span class="dot">●</span><span><strong>不燃性の容器</strong>（金属缶・陶器など）に入れ、燃えやすいものから離れた風通しのよい場所で保管します。</span></li>
+                    <li><span class="dot">●</span><span><strong>他の電池と分けて</strong>、1個ずつ保管します。端子はテープで絶縁します。</span></li>
+                    <li><span class="dot">●</span><span><strong>店頭の回収ボックスには入れない。</strong>持ち込む前に、必ず電話で状態を伝えてください。</span></li>
+                </ul>
+            </div>
+
+            <div class="notice-heading danger">どの電池でも共通のNG行為</div>
+            <div class="ng-chips">
+                <span class="ng-chip">分解する</span>
+                <span class="ng-chip">穴を開ける</span>
+                <span class="ng-chip">潰す・折り曲げる</span>
+                <span class="ng-chip">水・塩水に浸ける</span>
+                <span class="ng-chip">燃えるごみ・不燃ごみに混ぜる</span>
+                <span class="ng-chip">状態を隠して回収ボックスに入れる</span>
+            </div>
+
+            <div class="emergency-box">
+                <div class="emergency-title">🚨 発煙・発熱・異臭があるとき</div>
+                <p>燃えやすいものから離れ、可能なら不燃性の場所に置いてください。近づけない場合は、距離を取って<strong>119番</strong>に連絡してください。</p>
+            </div>
+
+            <p class="notice-foot">※ 回収の可否や方法は、自治体・店舗によって異なります。持ち込む前に、必ず事前に確認してください。</p>
         </div>
     </div>
 
@@ -409,7 +484,7 @@
         <div class="section-label"><div class="section-num" style="background:var(--primary)">Q</div><div class="section-title">流し読み防止最終チェック</div></div>
         <div class="quiz-question">取り外した古いリチウムイオン電池は、家庭の「燃えるゴミ」や「不燃ゴミ」として廃棄してもよいですか？</div>
         <div class="quiz-options">
-            <button class="btn-quiz" id="quiz-yes">はい（自治体が回収する）</button>
+            <button class="btn-quiz" id="quiz-yes">はい（一般ごみとして廃棄）</button>
             <button class="btn-quiz" id="quiz-no">いいえ（一般ゴミ廃棄は絶対厳禁）</button>
         </div>
         <div class="quiz-feedback" id="quiz-feedback"></div>
