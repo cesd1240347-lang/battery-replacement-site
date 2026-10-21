@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>トラブルシューティング＆最終動作確認</title>
+    <link rel="icon" href="./images/favicon.ico" type="image/x-icon">
+    <style>
+        /* 1〜3個目のページと完全に統一されたモダンカラーシステム */
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --danger: #f43f5e;
+            --warning: #fb923c;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --success: #10b981;
+            --border-color: #334155;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+            line-height: 1.8;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .wrapper {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            font-size: 30px;
+            font-weight: 800;
+            background: linear-gradient(to right, #38bdf8, #6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0 0 10px 0;
+        }
+
+        header p {
+            color: var(--text-sub);
+            margin: 0;
+            font-size: 15px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 35px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+        }
+
+        h2 {
+            font-size: 20px;
+            color: #fff;
+            margin-top: 0;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* ─── 1. インタラクティブ・チェックリスト ─── */
+        .check-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+        .check-item:last-child { border-bottom: none; }
+        .check-item:hover { background: rgba(255,255,255,0.02); }
+
+        .check-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--success);
+            cursor: pointer;
+        }
+
+        .check-label-title {
+            display: block;
+            font-weight: 700;
+            font-size: 15px;
+            color: #fff;
+        }
+        .check-label-desc {
+            display: block;
+            font-size: 13px;
+            color: var(--text-sub);
+        }
+
+        /* 全チェック達成時のサクセスカード（隠し要素） */
+        .success-announcement {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(99, 102, 241, 0.15));
+            border: 2px solid var(--success);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+            display: none; /* 初期状態は非表示 */
+            animation: fadeInUp 0.5s ease forwards;
+        }
+        .success-announcement h3 { color: var(--success); margin-top: 0; font-size: 22px; }
+
+        /* ─── 2. オシャレなアコーディオンUI（FAQ） ─── */
+        .accordion-group {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .accordion-item {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(30, 41, 59, 0.4);
+        }
+
+        .accordion-trigger {
+            width: 100%;
+            padding: 18px 20px;
+            background: none;
+            border: none;
+            color: #fff;
+            text-align: left;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s;
+        }
+        .accordion-trigger:hover { background: rgba(255,255,255,0.03); }
+
+        /* 矢印アイコンのアニメーション */
+        .accordion-icon {
+            font-size: 12px;
+            color: var(--text-sub);
+            transition: transform 0.3s ease;
+        }
+        .accordion-item.open .accordion-icon {
+            transform: rotate(180deg);
+            color: var(--primary);
+        }
+
+        /* 滑らかに開閉する中身 */
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s cubic-bezier(0, 1, 0, 1); /* 高速かつ滑らかな開閉 */
+            background: rgba(15, 23, 42, 0.3);
+        }
+        .accordion-item.open .accordion-content {
+            max-height: 1000px; /* 十分な高さ */
+            transition: max-height 0.5s cubic-bezier(1, 0, 1, 0);
+        }
+        .accordion-inner {
+            padding: 20px;
+            font-size: 14px;
+            color: #cbd5e1;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* ─── 3. 処分方法のおさらい ─── */
+        .disposal-alert {
+            border-left: 4px solid var(--warning);
+            background: rgba(251, 146, 60, 0.05);
+            padding: 20px;
+            border-radius: 4px;
+        }
+        .disposal-alert p { margin: 0; font-size: 14px; color: #ffedd5; }
+
+        /* フッターエリア */
+        .action-area {
+            text-align: center;
+            margin-top: 50px;
+        }
+        .btn-finish {
+            display: inline-block;
+            width: 100%;
+            max-width: 400px;
+            padding: 18px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
+            transition: all 0.2s;
+        }
+        .btn-finish:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        /* アニメーション */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            .card { padding: 24px; }
+            header h1 { font-size: 24px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+    <header>
+        <h1 id="page-title">ポストリペア＆トラブルシューティング</h1>
+        <p>組み立て完了後の最終動作チェックと、不具合時の解決ガイド</p>
+    </header>
+
+    <div class="success-announcement" id="success-card">
+        <h3>🎉 ALL CHECKED COMPLETE!</h3>
+        <p style="margin: 5px 0 0 0; color: #e2e8f0; font-weight: 500;">
+            すべての動作確認が正常に完了しました！これでバッテリー交換は完全成功です。お疲れ様でした！
+        </p>
+    </div>
+
+    <div class="card">
+        <h2>✅ 1. 起動後のポストリペアチェック</h2>
+        <p style="font-size: 14px; color: var(--text-sub); margin-top: 0; margin-bottom: 20px;">
+            電源を入れた後、以下の項目を一つずつ操作して正常に機能するか確認し、チェックを入れてください。
+        </p>
+
+        <ul class="check-list">
+            <li class="check-item" onclick="toggleCheck(this)">
+                <input type="checkbox" class="sync-check">
+                <div>
+                    <span class="check-label-title">電源の起動確認</span>
+                    <span class="check-label-desc">電源ボタンを長押しし、OSのロゴが正常に表示され起動するか。</span>
+                </div>
+            </li>
+            <li class="check-item" onclick="toggleCheck(this)">
+                <input type="checkbox" class="sync-check">
+                <div>
+                    <span class="check-label-title">充電認識とインジケーター</span>
+                    <span class="check-label-desc">充電ケーブルを挿し、雷マーク（充電中）に切り替わり、％が増えていくか。</span>
+                </div>
+            </li>
+            <li class="check-item" onclick="toggleCheck(this)">
+                <input type="checkbox" class="sync-check">
+                <div>
+                    <span class="check-label-title">タッチパネル＆ディスプレイ</span>
+                    <span class="check-label-desc">画面全体をタッチして、操作の引っ掛かりや、色の変色・チラつきがないか。</span>
+                </div>
+            </li>
+            <li class="check-item" onclick="toggleCheck(this)">
+                <input type="checkbox" class="sync-check">
+                <div>
+                    <span class="check-label-title">スピーカー＆オーディオ</span>
+                    <span class="check-label-desc">（Pixel 7等で外したパーツ）動画や音楽を再生し、下部から音が割れずに聴こえるか。</span>
+                </div>
+            </li>
+            <li class="check-item" onclick="toggleCheck(this)">
+                <input type="checkbox" class="sync-check">
+                <div>
+                    <span class="check-label-title">通信ネットワーク（Wi-Fi / モバイル電波）</span>
+                    <span class="check-label-desc">アンテナピクトが立ち、インターネットに正常に繋がるか（アンテナ線の挟み込み防止確認）。</span>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>🔍 2. もしも…の時のトラブルシューティング</h2>
+        <p style="font-size: 14px; color: var(--text-sub); margin-top: 0; margin-bottom: 25px;">
+            万が一、動作に異常がある場合は、焦らずに以下の項目をクリックして原因と対策を確認してください。
+        </p>
+
+        <div class="accordion-group">
+            <div class="accordion-item">
+                <button class="accordion-trigger" onclick="toggleAccordion(this)">
+                    Q. 電源ボタンを押しても画面が真っ白、または全く起動しない
+                    <span class="accordion-icon">▼</span>
+                </button>
+                <div class="accordion-content">
+                    <div class="accordion-inner">
+                        <strong>【原因1：バッテリーの完全放電】</strong><br>
+                        新品のバッテリーは工場出荷時に残量が空に近い場合があります。充電器を挿したまま30分以上放置して様子を見てください。<br><br>
+                        <strong>【原因2：コネクタの接触不良】</strong><br>
+                        内部のバッテリーコネクタ、または液晶ディスプレイケーブルのコネクタが完全に「カチッ」とはまっておらず、わずかに浮いている可能性が非常に高いです。もう一度慎重に開封し、端子の接続を押し直してください。
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <button class="accordion-trigger" onclick="toggleAccordion(this)">
+                    Q. 数日経ってから、画面や背面パネルが少し浮いてきた
+                    <span class="accordion-icon">▼</span>
+                </button>
+                <div class="accordion-content">
+                    <div class="accordion-inner">
+                        <strong>【原因1：圧着不足、または古い接着剤の残り】</strong><br>
+                        組み立て時に、元の古い接着剤のカスを綺麗に掃除しきれていなかったか、最後の「重りを置いて圧着する工程」の時間が足りなかった可能性があります。専用の両面テープを貼り直し、今度はクランプや重りを数時間しっかりと乗せて圧着させてください。<br><br>
+                        <strong style="color:var(--danger);">【原因2：※要厳戒・バッテリーの初期不良（膨張）】</strong><br>
+                        ごく稀に、新品のバッテリーであっても初期不良で内部ガスが溜まり、パンパンに膨らんでパネルを押し上げてしまうケースがあります。もしバッテリー自体が膨らんでいるのを確認した場合は、<span style="color:var(--danger); font-weight:bold;">すぐに使用・充電を中止</span>し、購入店舗に交換を申請してください。
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <button class="accordion-trigger" onclick="toggleAccordion(this)">
+                    Q. バッテリーの減りが異常に早い、または残量表示がコロコロ飛ぶ
+                    <span class="accordion-icon">▼</span>
+                </button>
+                <div class="accordion-content">
+                    <div class="accordion-inner">
+                        <strong>【原因：OSと新しいバッテリーの認識ズレ】</strong><br>
+                        スマホのOS（システム）が、新しく入ってきたバッテリーの「最大容量」を正確に学習できていない場合に発生します。これは不具合ではなく仕様です。<br><br>
+                        <strong>【対策：バッテリーのキャリブレーション（初期化）】</strong><br>
+                        一度スマホの充電を100%まで満充電にした後、通常通り使用して残量が0%（自動で電源が落ちるまで）完全に使い切ってください。その後、再び電源を入れずに100%まで一気に充電します。この充放電サイクルを1〜2回繰り返すと、OSの残量表示システムが較正され、正常なバッテリー持ちに戻ります。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>♻️ 3. 最後に：取り外した古いバッテリーの処分</h2>
+        <div class="disposal-alert">
+            <p>
+                お疲れ様でした。最後に最も重要なステップです。取り外した古いリチウムイオンバッテリーは、絶対に家庭用ゴミ（燃えるゴミ・燃えないゴミ）として捨てないでください。ゴミ収集車内での発火・爆発事故に繋がります。<br><br>
+                2ページ目の<strong>「caution.html（注意事項ページ）」</strong>で詳しく確認した通り、<strong>コネクタ端子に必ず絶縁テープを貼り</strong>、お近くの家電量販店（ヤマダデンキ、エディオン、ケーズデンキ等）のJBRCリサイクルBOXや、公共施設の専用回収窓口へ直接持ち込んで安全に処分を完了させてください。
+            </p>
+        </div>
+    </div>
+
+    <div class="action-area">
+        <a href="front.html" class="btn-finish">すべての確認を終えてトップへ戻る</a>
+    </div>
+</div>
+
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const deviceKey = urlParams.get('device') || 'googlepixel7';
+        
+        // 機種名に応じた処理（もし必要ならタイトルに機種名を追加するなど拡張可能）
+        if(deviceKey === 'googlepixel7') {
+            document.getElementById('page-title').innerText = "Google Pixel 7 最終動作確認";
+        }
+    });
+
+    // チェックボックスとリスト項目の連動、および全チェック達成判定
+    function toggleCheck(liElement) {
+        // リスト内のチェックボックスを取得
+        const checkbox = liElement.querySelector('.sync-check');
+        
+        // クリックイベントがチェックボックス自体から発生したものでない場合、反転させる
+        // （input要素自体をクリックした時のイベント二重発生を防ぐ）
+        if (event.target !== checkbox) {
+            checkbox.checked = !checkbox.checked;
+        }
+
+        // すべてのチェックボックスの状態を検査
+        const allCheckboxes = document.querySelectorAll('.sync-check');
+        const successCard = document.getElementById('success-card');
+        
+        // すべてのチェックボックスがtrue（checked）かどうかを判定
+        const isAllChecked = Array.from(allCheckboxes).every(input => input.checked);
+
+        // すべてチェックされたらサクセスカードをふわっと出す（教官絶句ギミック）
+        if (isAllChecked) {
+            successCard.style.display = 'block';
+        } else {
+            successCard.style.display = 'none';
+        }
+    }
+
+    // オシャレに滑らかに動くアコーディオン制御関数
+    function toggleAccordion(buttonElement) {
+        const item = buttonElement.parentElement;
+        
+        // クリックされたアイテムがすでに開いているかチェック
+        const isOpen = item.classList.contains('open');
+        
+        // 他のアコーディオンを全部閉じる（1つだけ開くスッキリ仕様にする場合）
+        document.querySelectorAll('.accordion-item').forEach(i => i.classList.remove('open'));
+        
+        // 閉じていたものをクリックしたなら、それを開く
+        if (!isOpen) {
+            item.classList.add('open');
+        }
+    }
+</script>
+
+</body>
+</html>

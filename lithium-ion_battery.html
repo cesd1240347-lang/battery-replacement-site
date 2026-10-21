@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>リチウムイオン電池とは？仕組みや用途・安全性を徹底解説</title>
+    <link rel="icon" href="./images/favicon.ico" type="image/x-icon">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.15);
+            --danger: #ef4444;
+            --danger-glow: rgba(239, 68, 68, 0.15);
+            --warning: #f59e0b;
+            --success: #10b981;
+            --success-glow: rgba(16, 185, 129, 0.15);
+            --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.15);
+            --bg: #080e1a;
+            --card: #131f35;
+            --card-border: #1e3050;
+            --text: #e8eef8;
+            --text-sub: #94a3b8;
+            --text-muted: #64748b;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.8;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .wrapper { max-width: 860px; margin: 0 auto; padding: 40px 24px 80px; }
+
+        /* ─── Navigation ─── */
+        .top-nav { margin-bottom: 40px; position: sticky; top: 20px; z-index: 100; }
+        .btn-back {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(13, 22, 39, 0.85); backdrop-filter: blur(8px);
+            color: var(--text-sub); border: 1px solid var(--card-border);
+            padding: 10px 20px; border-radius: 100px;
+            text-decoration: none; font-size: 14px; font-weight: 700;
+            transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .btn-back:hover { background: rgba(255, 255, 255, 0.1); color: #fff; border-color: var(--accent); }
+
+        /* ─── Header ─── */
+        header { text-align: center; margin-bottom: 48px; }
+        .header-tag {
+            display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.15em;
+            color: var(--accent); background: var(--accent-glow);
+            border: 1px solid rgba(56, 189, 248, 0.3); padding: 4px 16px;
+            border-radius: 100px; margin-bottom: 16px;
+        }
+        header h1 {
+            font-size: clamp(24px, 5vw, 36px); font-weight: 900; letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 16px; line-height: 1.3;
+        }
+        header p { color: var(--text-sub); font-size: 15px; max-width: 600px; margin: 0 auto; }
+
+        /* ─── Card Components ─── */
+        .card { background: var(--card); border: 1px solid var(--card-border); border-radius: 20px; padding: 32px 40px; margin-bottom: 32px; }
+        .card.danger { border-color: rgba(239, 68, 68, 0.3); background: linear-gradient(to bottom, #131f35, #1a1014); }
+        
+        .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; border-bottom: 1px solid var(--card-border); padding-bottom: 16px; }
+        .card-icon { width: 40px; height: 40px; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; border: 1px solid rgba(255,255,255,0.1); }
+        .card-title { font-size: 20px; font-weight: 800; color: #fff; margin: 0; }
+        .card-title-sub { font-size: 13px; color: var(--accent); font-weight: bold; display: block; margin-bottom: 4px; }
+
+        p { margin-bottom: 20px; font-size: 15px; color: #cbd5e1; }
+        strong { color: #fff; font-weight: 700; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; }
+
+        /* ─── Grid Systems ─── */
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 20px; }
+
+        /* ─── Info Boxes ─── */
+        .info-box { background: #0a1324; border: 1px solid var(--card-border); border-radius: 12px; padding: 20px; }
+        .info-box h4 { color: var(--accent); font-size: 15px; margin: 0 0 8px; display: flex; align-items: center; gap: 8px; }
+        .info-box p { font-size: 13px; color: var(--text-sub); margin: 0; line-height: 1.6; }
+        
+        /* ─── List Styles ─── */
+        .feature-list { list-style: none; padding: 0; margin: 0 0 20px; }
+        .feature-list li { position: relative; padding-left: 28px; margin-bottom: 12px; font-size: 14px; color: #cbd5e1; }
+        .feature-list li::before { content: "✓"; position: absolute; left: 0; top: 1px; color: var(--success); font-weight: bold; background: var(--success-glow); width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+
+        .alert-list { list-style: none; padding: 0; margin: 0; }
+        .alert-list li { position: relative; padding-left: 28px; margin-bottom: 12px; font-size: 14px; color: #cbd5e1; }
+        .alert-list li::before { content: "!"; position: absolute; left: 0; top: 1px; color: var(--danger); font-weight: bold; background: var(--danger-glow); width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+
+        /* ─── Battery Types Table/Grid ─── */
+        .type-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
+        .type-card { background: rgba(255,255,255,0.02); border: 1px solid #2a3a5a; border-radius: 12px; padding: 16px; border-left: 4px solid var(--primary); }
+        .type-card.lco { border-left-color: #3b82f6; }
+        .type-card.nmc { border-left-color: #8b5cf6; }
+        .type-card.lfp { border-left-color: #10b981; }
+        .type-card h5 { color: #fff; font-size: 16px; margin: 0 0 8px; display: flex; justify-content: space-between; align-items: center; }
+        .type-tag { font-size: 11px; padding: 2px 8px; border-radius: 4px; background: rgba(255,255,255,0.1); color: #94a3b8; }
+        .type-card p { font-size: 13px; color: var(--text-sub); margin: 0; }
+
+        /* ─── Footer Action ─── */
+        .bottom-action { text-align: center; margin-top: 60px; padding-top: 40px; border-top: 1px solid var(--card-border); }
+        .btn-return-main {
+            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; max-width: 400px; padding: 18px 32px;
+            background: linear-gradient(135deg, var(--primary), #4338ca);
+            color: #fff; border-radius: 14px; font-size: 16px; font-weight: 800;
+            text-decoration: none; box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+            transition: all 0.25s ease;
+        }
+        .btn-return-main:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(99, 102, 241, 0.45); }
+
+        @media (max-width: 640px) {
+            .card { padding: 24px 20px; }
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+            .btn-back { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+    <!-- 上部ナビゲーション -->
+    <div class="top-nav">
+        <a href="#" class="btn-back btn-return-target">
+            <span>← 注意事項画面（元のページ）へ戻る</span>
+        </a>
+    </div>
+
+    <header>
+        <div class="header-tag">TECHNICAL GUIDE</div>
+        <h1>リチウムイオン電池の<br>仕組みと安全性</h1>
+        <p>スマホからEVまで、現代社会を支える高性能バッテリー。その驚異的な性能の理由と、正しい取り扱い方法を解説します。</p>
+    </header>
+
+    <!-- 01: 仕組みと構造 -->
+    <div class="card">
+        <div class="card-header">
+            <div class="card-icon">⚙️</div>
+            <div>
+                <span class="card-title-sub">BASIC STRUCTURE</span>
+                <h2 class="card-title">基本構造と充放電の仕組み</h2>
+            </div>
+        </div>
+        <p>リチウムイオン電池は、一度使い切ったら終わりではなく、繰り返し充電して使える「二次電池」です。主に以下の4つの要素で構成されています。</p>
+        
+        <div class="grid-2">
+            <div class="info-box">
+                <h4>🔋 4つの主要パーツ</h4>
+                <ul style="padding-left:16px; margin:0; font-size:13px; color:var(--text-sub);">
+                    <li><strong>正極(カソード):</strong> リチウムイオンを含む材料（コバルト酸リチウム等）</li>
+                    <li><strong>負極(アノード):</strong> イオンを吸蔵する炭素材料（グラファイト等）</li>
+                    <li><strong>電解液:</strong> イオンが移動するための液状媒体</li>
+                    <li><strong>セパレーター:</strong> 正極と負極のショートを防ぐ微細な分離膜</li>
+                </ul>
+            </div>
+            <div class="info-box">
+                <h4>⚡ 充放電のメカニズム</h4>
+                <p><strong>充電時：</strong> リチウムイオンが電解液を通って「正極から負極へ」移動し、電気エネルギーを化学エネルギーとして蓄えます。<br>
+                   <strong>放電時：</strong> 逆にイオンが「負極から正極へ」戻り、電子が外部回路を流れることで機器に電力が供給されます。</p>
+            </div>
+        </div>
+
+        <h3 style="font-size: 16px; color: #fff; margin: 24px 0 12px;">他の二次電池との違い（メリット）</h3>
+        <ul class="feature-list">
+            <li><strong>高エネルギー密度・高電圧:</strong> 同じサイズで多くの電気を蓄えられ、3.6V〜3.7Vという高い電圧を出力可能。小型・軽量化に最適です。</li>
+            <li><strong>メモリー効果がほぼ無い:</strong> 使い切る前に「継ぎ足し充電」をしても容量が減りにくいため、スマホなどの運用に合っています。</li>
+            <li><strong>自己放電が少ない:</strong> 使わずに放置していても、電気が勝手に減っていく現象が起こりにくい特性があります。</li>
+        </ul>
+    </div>
+
+    <!-- 02: 種類と特徴 -->
+    <div class="card">
+        <div class="card-header">
+            <div class="card-icon">🧬</div>
+            <div>
+                <span class="card-title-sub">BATTERY TYPES</span>
+                <h2 class="card-title">主な種類とそれぞれの特徴</h2>
+            </div>
+        </div>
+        <p>正極に使われる素材によって特性が大きく異なります。用途に合わせて様々なタイプが開発されています。</p>
+
+        <div class="type-grid">
+            <div class="type-card lco">
+                <h5>LCO系 <span class="type-tag">コバルト酸リチウム</span></h5>
+                <p>エネルギー密度が高く、スマホやノートPCで普及。しかしコバルトが高価で熱安定性に課題があり、代替品への移行が進んでいます。</p>
+            </div>
+            <div class="type-card nmc">
+                <h5>NMC / NCA系 <span class="type-tag">三元系・ニッケル系</span></h5>
+                <p>高出力と高エネルギー密度を両立。電気自動車（EV）や電動工具など、パワーと長時間の稼働が求められる分野の主役です。</p>
+            </div>
+            <div class="type-card lfp">
+                <h5>LFP系 <span class="type-tag">リン酸鉄リチウム</span></h5>
+                <p>エネルギー密度はやや低いものの、<strong>熱暴走のリスクが極めて低く安全</strong>で、長寿命かつ低コスト。商用EVや定置型蓄電池で急増中です。</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 03: 活躍する分野 -->
+    <div class="card">
+        <div class="card-header">
+            <div class="card-icon">🏭</div>
+            <div>
+                <span class="card-title-sub">USE CASES</span>
+                <h2 class="card-title">産業や生活での活用事例</h2>
+            </div>
+        </div>
+        
+        <div class="grid-3">
+            <div class="info-box">
+                <h4>📱 モバイル・IT機器</h4>
+                <p>スマホやPCはもちろん、IoTセンサーなどの配線が困難な場所での長時間電源として不可欠です。</p>
+            </div>
+            <div class="info-box">
+                <h4>🚗 EV・モビリティ</h4>
+                <p>電気自動車や電動バイクに搭載。各社が技術・価格競争を行い、高性能化が急速に進んでいます。</p>
+            </div>
+            <div class="info-box">
+                <h4>🤖 産業ロボット・AGV</h4>
+                <p>工場内を自律移動する無人搬送車(AGV)など、ケーブルレスで高出力が求められる環境で活躍しています。</p>
+            </div>
+            <div class="info-box">
+                <h4>☀️ エネルギー・非常用電源</h4>
+                <p>出力が不安定な再生可能エネルギーの蓄電や、データセンターのUPS（無停電電源装置）として導入されています。</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 04: 発火リスクと劣化 -->
+    <div class="card danger">
+        <div class="card-header">
+            <div class="card-icon">🔥</div>
+            <div>
+                <span class="card-title-sub">RISK & MECHANISM</span>
+                <h2 class="card-title">なぜ発火や劣化が起きるのか？</h2>
+            </div>
+        </div>
+        <p>高性能な反面、誤った取り扱いをすると「熱暴走（サーマルランアウェイ）」という制御不能な発熱・発火を引き起こします。</p>
+
+        <div class="grid-2">
+            <div class="info-box" style="background: rgba(239, 68, 68, 0.05); border-color: rgba(239, 68, 68, 0.2);">
+                <h4 style="color: #fca5a5;">💥 発火・熱暴走の原因</h4>
+                <ul class="alert-list">
+                    <li><strong>内部短絡（ショート）:</strong> 落下等の衝撃や、製造時の異物混入でセパレーターが破れると一気に電流が流れ発熱します。</li>
+                    <li><strong>ガス発生と膨張:</strong> 劣化が進むと内部でガスが発生。膨らんだ状態に衝撃が加わると引火しやすくなります。</li>
+                    <li><strong>過充電:</strong> 満充電を超えて電気を流し続けると構造が破壊され、発熱や発火に直結します。</li>
+                </ul>
+            </div>
+            <div class="info-box">
+                <h4>📉 寿命（劣化）を早める要因</h4>
+                <ul class="alert-list" style="li::before { color: var(--warning); background: rgba(245, 158, 11, 0.2); content: '!'; }">
+                    <li><strong>極端な温度:</strong> 特に高温（夏場の車内など）は化学反応を暴走させ、急激に劣化させます。</li>
+                    <li><strong>過放電と長期放置:</strong> 残量0%のまま放置すると内部素材が溶出し、二度と充電できなくなることがあります。</li>
+                    <li><strong>充放電サイクル:</strong> 一般的に約500回の充放電で劣化が顕著になると言われています。</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- 05: 寿命を延ばす方法 -->
+    <div class="card">
+        <div class="card-header">
+            <div class="card-icon">🛡️</div>
+            <div>
+                <span class="card-title-sub">BEST PRACTICES</span>
+                <h2 class="card-title">寿命を延ばし、安全に使う5つの方法</h2>
+            </div>
+        </div>
+
+        <ul class="feature-list" style="margin-bottom: 30px;">
+            <li><strong>50%〜80%の範囲で使用する:</strong> 満充電(100%)や完全放電(0%)はバッテリーに大きなストレスを与えます。継ぎ足し充電を活用しましょう。</li>
+            <li><strong>温度管理の徹底（20〜25℃が理想）:</strong> 直射日光や高温多湿を避け、涼しい環境で充電・保管してください。</li>
+            <li><strong>長期保管時は「残量50%」で:</strong> 使わずにしまっておく機械は、満充電でも空っぽでもなく、半分程度の残量がベストです。</li>
+            <li><strong>必ず専用（純正）の充電器を使う:</strong> 粗悪な充電器は電圧制御ができず、過充電を引き起こす危険があります。</li>
+            <li><strong>膨張や異常な発熱を感じたら即中止:</strong> バッテリーが膨らんだり、触れないほど熱くなる場合は寿命のサインです。使用を直ちにやめ、適切に廃棄・交換してください。</li>
+        </ul>
+
+        <div class="info-box" style="background: rgba(56, 189, 248, 0.05); border-color: rgba(56, 189, 248, 0.2);">
+            <h4 style="color: var(--accent);">💡 最新技術：ワイヤレス給電への期待</h4>
+            <p>近年、ケーブル接続の劣化や断線によるショートリスクを排除できる「ワイヤレス給電」が注目されています。密閉状態で充電できるため、防塵防水性が高まり、工場や屋外での安全性がさらに向上すると期待されています。</p>
+        </div>
+    </div>
+
+    <!-- 下部戻るボタン -->
+    <div class="bottom-action">
+        <a href="#" class="btn-return-main btn-return-target">
+            <span>理解しました（注意事項画面へ戻る）</span>
+            <span style="font-size: 20px;">→</span>
+        </a>
+    </div>
+
+</div>
+
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+    // URLからdeviceパラメータを取得して、戻り先の caution.html に引き継ぐ
+    const urlParams = new URLSearchParams(window.location.search);
+    const deviceKey = urlParams.get('device') || '';
+    
+    // 遷移先URLの生成
+    const returnTargetUrl = `caution.html${deviceKey ? `?device=${encodeURIComponent(deviceKey)}` : ''}`;
+
+    // クラス名 'btn-return-target' を持つすべてのボタンにリンク先を設定
+    const returnButtons = document.querySelectorAll('.btn-return-target');
+    returnButtons.forEach(btn => {
+        btn.href = returnTargetUrl;
+    });
+});
+</script>
+</body>
+</html>

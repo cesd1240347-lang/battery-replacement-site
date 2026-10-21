@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>【緊急】バッテリー発火・消火マニュアル</title>
+    <link rel="icon" href="./images/favicon.ico" type="image/x-icon">
+    <style>
+        :root {
+            --bg-color: #111827;
+            --text-main: #f9fafb;
+            --red-alert: #ef4444;
+            --red-dark: #7f1d1d;
+            --yellow-warn: #f59e0b;
+            --blue-water: #3b82f6;
+            --orange-fire: #f97316;
+            --card-bg: #1f2937;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ▼▼ 119番緊急通報バー (画面上部固定) ▼▼ */
+        .emergency-bar {
+            background-color: var(--red-alert);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 15px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+            animation: bg-pulse 2s infinite alternate;
+        }
+
+        @keyframes bg-pulse {
+            0% { background-color: #ef4444; }
+            100% { background-color: #dc2626; }
+        }
+
+        .emergency-bar p {
+            margin: 0 0 10px 0;
+            font-size: 15px;
+            font-weight: 800;
+            color: white;
+            text-align: center;
+        }
+
+        .call-btn {
+            background-color: white;
+            color: var(--red-alert);
+            text-decoration: none;
+            font-size: 26px;
+            font-weight: 900;
+            padding: 12px 40px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+        
+        .call-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* ▼▼ メインコンテンツ ▼▼ */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 15px 50px 15px;
+        }
+
+        h1 {
+            color: var(--yellow-warn);
+            font-size: 24px;
+            text-align: center;
+            border-bottom: 2px solid var(--yellow-warn);
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+
+        .step-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-left: 8px solid transparent;
+        }
+
+        .step-header {
+            font-size: 22px;
+            font-weight: 900;
+            margin-top: 0;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* アクション 1: 危険回避 (赤) */
+        .step-danger {
+            border-color: var(--red-alert);
+            background: linear-gradient(to right, rgba(127, 29, 29, 0.4), var(--card-bg));
+        }
+        .step-danger .step-header { color: #fca5a5; }
+        
+        .big-alert {
+            font-size: 20px;
+            font-weight: 800;
+            color: white;
+            margin: 10px 0;
+        }
+        .text-red { color: #f87171; font-size: 24px; }
+        .warning-text {
+            display: inline-block;
+            background-color: rgba(239, 68, 68, 0.2);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        /* アクション 2: 消火方法 */
+        .step-action { border-color: var(--yellow-warn); }
+        .step-action .step-header { color: var(--yellow-warn); }
+
+        .methods-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .method-box {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            border-top: 4px solid;
+        }
+
+        /* 水による消火 */
+        .method-water { border-color: var(--blue-water); }
+        .method-water h3 { color: #93c5fd; font-size: 20px; margin: 5px 0 15px 0; }
+        
+        /* ブランケット消火 */
+        .method-blanket { border-color: var(--orange-fire); }
+        .method-blanket h3 { color: #fdba74; font-size: 20px; margin: 5px 0 15px 0; }
+
+        .icon-large { font-size: 40px; margin-bottom: 5px; display: block; }
+
+        .action-step {
+            display: flex;
+            align-items: flex-start;
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 8px;
+            margin: 0;
+        }
+        .action-step p {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+        .step-num {
+            font-size: 18px;
+            font-weight: 900;
+            margin-right: 8px;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        .step-arrow {
+            text-align: center;
+            font-size: 24px;
+            margin: 8px 0;
+            color: rgba(255,255,255,0.4);
+            line-height: 1;
+        }
+
+        .highlight {
+            font-size: 18px;
+            font-weight: 900;
+            color: white;
+            background-color: rgba(255,255,255,0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .highlight-blue { color: #93c5fd; }
+        .highlight-orange { color: #fdba74; }
+
+        .info-note {
+            margin-top: 25px;
+            background-color: rgba(59, 130, 246, 0.1);
+            border: 1px solid var(--blue-water);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #bfdbfe;
+        }
+
+        /* スマホ用レイアウト調整 */
+        @media (max-width: 600px) {
+            .methods-grid { grid-template-columns: 1fr; }
+            .call-btn { padding: 10px 30px; font-size: 22px; }
+            .step-header { font-size: 20px; }
+            .big-alert { font-size: 18px; }
+            .text-red { font-size: 22px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 常に最上部に追従する緊急通報ボタン -->
+    <div class="emergency-bar">
+        <p>⚠️ 手に負えない・危険を感じたら迷わず通報！</p>
+        <a href="tel:119" class="call-btn">📞 119 番に発信</a>
+    </div>
+
+    <div class="container">
+        <h1>緊急：リチウムイオン電池の発火対応</h1>
+
+        <!-- 第1ステップ：安全確保 -->
+        <div class="step-card step-danger">
+            <h2 class="step-header">🚫 1. 絶対に近づかない状況</h2>
+            <p class="big-alert">火花や煙が激しく噴出している場合は<br><span class="text-red">絶対に近寄らないでください。</span></p>
+            <div class="warning-text">
+                ⚠️ 【有毒ガス発生の危険】<br>
+                煙を吸わないよう、直ちに部屋の窓を開けて換気し、安全な場所へ避難してください。
+            </div>
+        </div>
+
+        <!-- 第2ステップ：消火活動 -->
+        <div class="step-card step-action">
+            <h2 class="step-header">🧯 2. 火が収まってきた際の消火方法</h2>
+            <p>※身の安全が確保できる場合のみ実施してください。</p>
+            
+            <div class="methods-grid">
+                
+                <!-- 消火方法 A: 水 -->
+                <div class="method-box method-water">
+                    <span class="icon-large">🚰 バケツ・ホース</span>
+                    <h3>大量の「水」をかける</h3>
+                    
+                    <div class="action-step">
+                        <span class="step-num">①</span>
+                        <p><span class="highlight">少量の水はNG！</span>一気に大量の水をかけてください。</p>
+                    </div>
+                    
+                    <div class="step-arrow">⬇️</div>
+                    
+                    <div class="action-step">
+                        <span class="step-num">②</span>
+                        <p>水でバッテリーの<span class="highlight highlight-blue">温度を急激に下げる</span>ことが目的です。</p>
+                    </div>
+
+                    <div class="step-arrow">⬇️</div>
+                    
+                    <div class="action-step">
+                        <span class="step-num">③</span>
+                        <p>安全を確認後、容器に水を張り<span class="highlight highlight-blue">完全に水没</span>させてください。（再発火防止）</p>
+                    </div>
+                </div>
+
+                <!-- 消火方法 B: ファイヤーブランケット -->
+                <div class="method-box method-blanket">
+                    <span class="icon-large">🛡️ ファイヤーブランケット</span>
+                    <h3>消火布（ブランケット）</h3>
+                    
+                    <div class="action-step">
+                        <span class="step-num">①</span>
+                        <p>パッケージ下部のタブを<span class="highlight highlight-orange">勢いよく引っ張り</span>、布を取り出します。</p>
+                    </div>
+
+                    <div class="step-arrow">⬇️</div>
+                    
+                    <div class="action-step">
+                        <span class="step-num">②</span>
+                        <p>両手でしっかり持ち、火の上に<span class="highlight">そっと被せます。</span>（※投げつけない）</p>
+                    </div>
+
+                    <div class="step-arrow">⬇️</div>
+                    
+                    <div class="action-step">
+                        <span class="step-num">③</span>
+                        <p>炎が消えるまで<span class="highlight highlight-orange">15分以上放置</span>してください。布は絶対にめくらないでください。</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 専門知識補足 -->
+        <div class="info-note">
+            <strong>💡 豆知識：なぜ「水」が必要なのか？</strong><br>
+            一般的な粉末消火器（ABC消火器）で表面の火は消せますが、リチウムイオン電池内部の「熱暴走」は止まらず、時間経過で再発火する恐れがあります。最終的には【大量の水で冷やし続ける（または水没させる）】ことが最も確実な対処法です。
+        </div>
+
+    </div>
+
+</body>
+</html>

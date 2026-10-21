@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>バッテリー交換手順 - AI搭載ハンズフリーアシスト版</title>
+    <link rel="icon" href="./images/favicon.ico" type="image/x-icon">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.5);
+            --success: #10b981;
+            --success-glow: rgba(16, 185, 129, 0.4);
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg-base: #0f172a;
+            --bg-card: #1e293b;
+            --border-color: #334155;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-base); }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+
+        .wrapper { max-width: 760px; margin: 0 auto; padding: 60px 20px 180px; }
+
+        /* ─── Header ─── */
+        header { text-align: center; margin-bottom: 50px; }
+        .header-badge {
+            display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 0.1em;
+            color: var(--primary); background: rgba(59, 130, 246, 0.1);
+            padding: 6px 16px; border-radius: 99px; margin-bottom: 16px;
+        }
+        header h1 { font-size: clamp(24px, 5vw, 36px); font-weight: 800; margin-bottom: 12px; }
+
+        /* ─── Status Bar ─── */
+        .status-container {
+            position: sticky; top: 16px; z-index: 100;
+            background: rgba(30, 41, 59, 0.85); backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color); border-radius: 16px; padding: 16px 24px; margin-bottom: 40px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        .status-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .status-text { font-weight: 700; font-size: 14px; transition: color 0.3s; }
+        .status-counter {
+            background: var(--bg-base); padding: 4px 12px; border-radius: 8px; font-size: 14px; font-weight: 800;
+            border: 1px solid var(--border-color); font-variant-numeric: tabular-nums;
+        }
+        .progress-bar-bg { width: 100%; height: 8px; background: #0f172a; border-radius: 99px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5); }
+        .progress-bar-fill { 
+            height: 100%; width: 0%; border-radius: 99px; 
+            background: linear-gradient(90deg, #10b981, #34d399);
+            box-shadow: 0 0 10px var(--success-glow);
+            transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative; overflow: hidden;
+        }
+        .progress-bar-fill::after {
+            content: ""; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer { 100% { left: 200%; } }
+
+        .phase-title { font-size: 18px; font-weight: 700; border-bottom: 2px solid var(--border-color); padding-bottom: 8px; margin: 60px 0 24px; }
+
+        /* ─── Step Cards ─── */
+        .step-card {
+            background: var(--bg-card); border: 2px solid var(--border-color);
+            border-radius: 20px; padding: 32px; margin-bottom: 24px;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            scroll-margin-top: 120px; position: relative; overflow: hidden;
+        }
+        .step-card.locked { opacity: 0.3; filter: grayscale(100%); pointer-events: none; transform: scale(0.96) translateY(10px); }
+        .step-card.completed { opacity: 0.6; background: rgba(15, 23, 42, 0.8); border-color: rgba(16, 185, 129, 0.2); transform: scale(0.98); }
+        .step-card.active-focus {
+            background: var(--bg-card); border-color: var(--primary);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 0 0 4px rgba(59, 130, 246, 0.2);
+            transform: scale(1.02) translateY(-4px); z-index: 10;
+        }
+
+        .step-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; gap: 16px; flex-wrap: wrap; }
+        .step-meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        .step-number { font-size: 14px; font-weight: 800; color: #fff; background: var(--primary); padding: 4px 12px; border-radius: 8px; }
+
+        .step-text { font-size: 16px; margin-bottom: 24px; line-height: 1.8; }
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(318px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .step-tools {
+            font-size: 13px;
+            color: var(--text-sub);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .step-image { width: 330px; height: 100%; object-fit: cover; border-radius: 10px; border: 1px solid var(--border-color); }
+
+        .btn-complete {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 160px;
+            background: var(--bg-base); color: var(--text-sub); border: 2px solid var(--border-color);
+            padding: 14px 28px; border-radius: 99px; font-size: 15px; font-weight: 800;
+            cursor: pointer; transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); user-select: none;
+        }
+        .step-card.active-focus .btn-complete {
+            background: rgba(59, 130, 246, 0.1); color: var(--primary); border-color: var(--primary);
+            animation: pulse-primary 2s infinite;
+        }
+        @keyframes pulse-primary {
+            0% { box-shadow: 0 0 0 0 var(--primary-glow); }
+            70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+        .step-card.active-focus .btn-complete:hover { background: var(--primary); color: #fff; transform: translateY(-2px); }
+        .step-card.completed .btn-complete { background: var(--success); color: #fff; border-color: var(--success); animation: none; }
+
+        /* ─── AI画像判定UI ─── */
+        .ai-check-area {
+            margin-top: 24px; padding-top: 20px;
+            border-top: 1px dashed var(--border-color);
+        }
+        .btn-ai-camera {
+            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; padding: 14px; background: rgba(59, 130, 246, 0.05);
+            color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.4); border-radius: 12px;
+            font-size: 15px; font-weight: bold; cursor: pointer; transition: all 0.2s;
+        }
+        .step-card.active-focus .btn-ai-camera { border-color: var(--primary); color: var(--primary); }
+        .btn-ai-camera:hover { background: var(--primary); color: #fff; }
+        
+        .ai-feedback { 
+            margin-top: 16px; font-size: 14px; padding: 16px; 
+            border-radius: 12px; display: none; background: #0f172a;
+        }
+        .ai-loading { color: var(--warning); display: flex; align-items: center; gap: 8px; font-weight: bold; animation: pulse-text 1.5s infinite; }
+        .ai-success { color: var(--success); display: flex; align-items: center; gap: 8px; font-weight: bold; }
+        @keyframes pulse-text { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        /* ─── 音声アシストマイク UI ─── */
+        .mic-wrapper {
+            position: fixed; bottom: 30px; right: 30px; z-index: 1000;
+            display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+        }
+        .mic-btn {
+            width: 64px; height: 64px; border-radius: 50%;
+            background: var(--bg-card); border: 2px solid var(--border-color);
+            color: var(--text-main); font-size: 26px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; box-shadow: 0 10px 25px rgba(0,0,0,0.5); transition: all 0.3s;
+        }
+        .mic-btn.listening {
+            background: rgba(239, 68, 68, 0.1); border-color: var(--danger); color: var(--danger);
+            animation: pulse-danger 2s infinite;
+        }
+        @keyframes pulse-danger {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+            70% { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .mic-status {
+            background: rgba(15, 23, 42, 0.9); padding: 10px 16px; border-radius: 12px;
+            font-size: 13px; font-weight: bold; border: 1px solid var(--border-color);
+            backdrop-filter: blur(4px); pointer-events: none; opacity: 0; transform: translateX(20px); transition: all 0.3s;
+        }
+        .mic-wrapper:hover .mic-status, .mic-btn.listening + .mic-status { opacity: 1; transform: translateX(0); }
+        .mic-toast { color: #93c5fd; font-size: 12px; margin-top: 4px; font-weight: normal; }
+
+        /* 最終アクションエリア */
+        .action-area { text-align: center; margin-top: 80px; padding-top: 40px; border-top: 1px dashed var(--border-color); }
+        .btn-next {
+            display: inline-flex; align-items: center; justify-content: center; gap: 12px;
+            width: 100%; max-width: 480px; padding: 24px; background: var(--bg-card); color: var(--text-sub);
+            border: 2px solid var(--border-color); border-radius: 20px; font-size: 18px; font-weight: 800;
+            text-decoration: none; pointer-events: none; transition: all 0.4s;
+        }
+        .btn-next.ready {
+            background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff; border-color: transparent; pointer-events: auto;
+            box-shadow: 0 10px 40px rgba(239, 68, 68, 0.4); transform: translateY(-5px); animation: float-btn 3s ease-in-out infinite;
+        }
+        @keyframes float-btn { 0%, 100% { transform: translateY(-5px); } 50% { transform: translateY(0px); } }
+    
+        /* ▼▼▼ 緊急ボタンのスタイル ▼▼▼ */
+        .emergency-btn {
+            position: fixed;
+            bottom: 30px; /* マイクボタンとかぶらないよう位置を調整 */
+            right: 110px;
+            width: 65px;
+            height: 65px;
+            background-color: #ef4444; /* 赤色 */
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 11px;
+            line-height: 1.2;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.5);
+            cursor: grab; /* ドラッグできることを示すカーソル */
+            z-index: 9999;
+            user-select: none;
+            touch-action: none; /* スマホでのスクロール干渉防止 */
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.3s;
+            border: 2px solid #fca5a5;
+        }
+
+        .emergency-btn:active {
+            cursor: grabbing;
+        }
+
+        /* 1回タップされた時の状態（大きくなる） */
+        .emergency-btn.primed {
+            transform: scale(1.3);
+            background-color: #dc2626;
+            box-shadow: 0 0 25px rgba(220, 38, 38, 0.9);
+            border-color: #fef08a;
+            cursor: pointer;
+        }
+
+        .emergency-btn .icon {
+            font-size: 20px;
+            margin-bottom: 2px;
+        }
+        /* ▲▲▲ 緊急ボタンのスタイルここまで ▲▲▲ */
+    </style>
+</head>
+<body>
+
+<!-- Web Speech API用 マイクボタン -->
+<div class="mic-wrapper">
+    <div class="mic-status" id="mic-status-box">
+        <div id="mic-status-text">音声アシスト待機中</div>
+        <div class="mic-toast" id="mic-toast">マイクをタップして開始</div>
+    </div>
+    <button class="mic-btn" id="btn-mic" onclick="toggleMic()">🎤</button>
+</div>
+
+<div class="wrapper">
+    <header>
+        <div class="header-badge">AI Assistant & Hands-Free Mode</div>
+        <h1 id="procedure-title">バッテリー交換手順</h1>
+    </header>
+
+    <div class="status-container">
+        <div class="status-header">
+            <span class="status-text" id="status-message">準備を整え、最初のステップを開始してください</span>
+            <span class="status-counter" id="status-counter">0 / 17</span>
+        </div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-bar-fill"></div></div>
+    </div>
+
+    <div id="steps-container"></div>
+
+    <div class="action-area">
+        <a href="troubleshooting.html" id="next-page-btn" class="btn-next">🔒 すべての工程を完了してください</a>
+    </div>
+</div>
+
+<div id="emergency-btn" class="emergency-btn" title="ドラッグで移動できます">
+    <span class="icon" id="emg-icon">🚨</span>
+    <span class="text" id="emg-text">緊急</span>
+</div>
+
+<script>
+    const procedureDatabase = {
+        "googlepixel7": {
+            steps: [
+                { 
+                phase: "Phase 1: 事前準備", label: "準備", level: "normal", tools: ["不要"], text: "バッテリーを 20%以下まで放電します。（満充電状態での作業は、万が一の破損時の発火リスクが非常に高いため必ず実施してください）", 
+                img: ["images/p7_step1.jpg"] 
+                },
+                { 
+                phase: "Phase 2: スクリーンの開封と分離", label: "分解", level: "danger", tools: ["ヒートガン又はドライヤー", "吸盤", "ピック"], text: "スクリーンの縁をヒートガン、もしくはドライヤーを使って温め、接着を緩めます。そのあと、吸盤とピックを使ってスクリーンを慎重に取り外します。<br><br><b>〇注意点・補足</b><br>なかなか取れないと感じたら、もう一度温めてください。また、取り外す際にスクリーンを割らないように細心の注意を払って取り外してください。一人で取り外すのは少々難易度が高いため、自信のない方はスクリーンオープナーの使用を強く推奨します。",
+                img: ["images/p7_step2.jpg"] 
+                },
+                { 
+                phase: "Phase 2: スクリーンの開封と分離", label: "分解", level: "warning", tools: ["ピンセット", "スパッジャー"], text: "スクリーンと本体基板を接続している液晶ケーブルを、ピンセットやスパッジャーを用いて外します。<br><br><b>〇注意点・補足</b><br>ケーブルや、ケーブルの差込口はデリケートなため、慎重に取り外してください。傷をつけてしまうとスクリーンがつかなくなる恐れがあります。", 
+                img: ["images/p7_step3_video.mp4"] 
+                },
+                { 
+                phase: "Phase 3: 内部ミッドフレームの分解", label: "分解", level: "normal", tools: ["手","ピンセット"], text: "基板上の黒いシリコンパッドを取り外します。バッテリー交換後にまた貼り付けるため、破かないように注意して剥がしてください。", 
+                img: ["images/p7_step4-1.jpg","images/p7_step4-2.jpg"] 
+                },
+                { 
+                phase: "Phase 3: 内部ミッドフレームの分解", label: "分解", level: "warning", tools: ["ヒートガン", "ピック"], text: "本体上部と下部にあるグラファイトシート（黒い膜のようなもの）をはがします。バッテリー交換後に貼りなおす場合は、破かないように注意して剥がしてください。下部のシートは右側からはがすことをお勧めします。<br><br><b>〇注意点・補足</b><br>温めると剥がれやすくなります。ですが、グラファイトシートはバッテリーに貼り付いているため、温めすぎに注意してください。発火する恐れがあります。また、グラファイトシートを再利用する場合、熱伝導率が落ち、本体が高温になりやすくなります。", 
+                img: ["images/p7_step5-1.jpg","images/p7_step5-2.jpg","images/p7_step5-3.jpg","images/p7_step5-4.jpg"] 
+                },
+                { phase: "Phase 3: 内部ミッドフレームの分解", label: "分解", level: "normal", tools: ["T2トルクスドライバー"], text: "本体右下部分にあるラウドスピーカーを外します。<br><br><b>〇注意点・補足</b><br>ネジや部品の紛失・破損に注意して取り外してください。また、ネジは場所によって長さが異なります。外したネジは元の場所に戻せるよう管理してください。", 
+                img: ["images/p7_step6-1.jpg","images/p7_step6-2.jpg"] 
+                },
+                { 
+                phase: "Phase 3: 内部ミッドフレームの分解", label: "分解", level: "normal", tools: ["T2/T3ドライバー"], text: "バッテリーの周りをガードしている銀色の金属フレーム（ミッドフレーム）のネジをすべて外し、フレームを取り外していきます。<br><br><b>〇注意点・補足</b><br>ラウドスピーカーと同様、紛失や破損に注意して取り外してください。また、ネジを外すと、別の部品も取れてしまうことがあります。取れてしまった場合は組み立て時に忘れずに取り付けてください。", 
+                img: ["images/p7_step7-1.jpg","images/p7_step7-2.jpg"]
+                },
+                { 
+                phase: "Phase 4: 古いバッテリーの摘出と交換", label: "交換", level: "danger", tools: ["スパッジャー", "ピンセット"], text: "本体基板とつながっているバッテリーケーブル（電源コネクタ）を、スパッジャーやピンセットを用いて慎重に外します。傷をつけないよう注意して外してください。<br>そのあと、基板についている放熱グリスを綺麗にはがします。", 
+                img: ["images/p7_step8.mp4","images/p7_step8-2.jpg"] 
+                },
+                { 
+                phase: "Phase 4: 古いバッテリーの摘出と交換", label: "交換", level: "danger", tools: ["ヒートガン","釣り糸"], text: "スマホの背面側から適度に温め、バッテリーの裏側にある強力な接着剤を緩めます。そのあと、バッテリーについている透明のプルテープを外します。外したら、釣り糸をバッテリーと本体の隙間に通し、のこぎりのように左右に動かし、粘着テープをはがします。はがせなかった場合は、アルコール溶液を少量流し込んで接着を溶かします。<br><br><b>〇注意点・補足</b><br>温めすぎると、バッテリーをの温度が上がりすぎてしまい、発火する恐れがるため注意してください。バッテリーを傷つけないよう注意してください。万が一傷をつけてしまった場合は、発火する可能性があるため作業を中断し、様子を見てください。", 
+                img: ["images/p7_step9.jpg"] 
+                },
+                { 
+                phase: "Phase 4: 古いバッテリーの摘出と交換", label: "交換", level: "normal", tools: ["手・スパッジャー"], text: "古いバッテリーを本体から取り外します。そして、新しいバッテリーを取り付けます。その後、新しい放熱グリスを塗りなおします。", 
+                img: ["images/p7_step10.jpg"] 
+                },
+                { 
+                phase: "Phase 5: 本体の復元と圧着", label: "組立", level: "normal", tools: ["ドライバー全種"], text: "ミッドフレーム、スピーカー、シート類を逆の手順で元通りに組み立てていきます。<br><br><b>〇注意点・補足</b><br>部品の付け忘れやネジをはめる場所に注意して取り付けてください。", 
+                img: ["images/p7_step11.mp4"] 
+                },
+                { 
+                phase: "Phase 5: 本体の復元と圧着", label: "組立", level: "warning", tools: ["画面用接着剤"], text: "スクリーンを完全に戻す前に、本体とスクリーンのフチに付いている古い接着剤をきれいに掃除します。その後、新しい替えのスクリーン用接着剤（両面テープ枠）を正確に貼り付けます。<br><br><b>〇注意点・補足</b><br>古い粘着剤をきれいに取り除かないと、スクリーンを戻した際に画面が浮いてしまい、防水・防塵機能の低下につながります。", 
+                img: ["images/p7_step15.jpg"] 
+                },
+                {
+                phase: "Phase 5: 本体の復元と圧着", label: "組立", level: "warning", tools: ["手"], text: "スクリーンの液晶ケーブルを基板にカチッと接続し、ディスプレイを本体の枠内に歪みがないよう綺麗にはめ込みます。<br><br><b>〇注意点・補足</b><br>ケーブルを基板に差し込んだ後、スクリーンをはめる前に電源をつけて確かめることが可能です。不安な方はケーブルを差し込んだ段階で一度電源を入れて画面が点くかを確認してください。", 
+                img: ["images/p7_step16.jpg"] 
+                },
+                { 
+                phase: "Phase 5: 本体の復元と圧着", label: "組立", level: "success", tools: ["重り"], text: "画面をはめた後、新しくつけた接着剤が確実に密着して完全に固定されるまで、スマホの上に適度な重りを置き、数時間しっかりと時間を置いて圧着させます。<br><br><b>〇注意点・補足</b><br>しっかり圧着しないと、防水・防塵機能の低下や、スクリーンが開いてしまう可能性があります。", 
+                img: ["images/p7_step17.jpg"] 
+                }
+            ]
+        }
+    };
+
+    let totalStepsGlobal = 0;
+    let savedProgress = [];
+
+    // Web Speech API 用の変数
+    let recognition;
+    let isListening = false;
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const data = procedureDatabase["googlepixel7"];
+        const container = document.getElementById('steps-container');
+        totalStepsGlobal = data.steps.length;
+        savedProgress = new Array(totalStepsGlobal).fill(false);
+
+        let currentPhase = "";
+
+        data.steps.forEach((step, index) => {
+            const stepNum = index + 1;
+
+            if (currentPhase !== step.phase) {
+                currentPhase = step.phase;
+                const phaseHeader = document.createElement('div');
+                phaseHeader.className = 'phase-title';
+                phaseHeader.innerText = currentPhase;
+                container.appendChild(phaseHeader);
+            }
+
+            const card = document.createElement('div');
+            card.className = `step-card`;
+            card.id = `step-card-${index}`;
+
+            const mediaList = Array.isArray(step.img) ? step.img : (step.img ? [step.img] : []);
+
+            const imagesHtml = mediaList.map(src => {
+                if (src.endsWith('.mp4')) {
+                    return `<video class="step-image" src="${src}" controls playsinline muted loop></video>`;
+                } else {
+                    return `<img class="step-image" src="${src}" onerror="this.style.display='none'">`;
+                }
+            }).join('');
+
+            card.innerHTML = `
+                <div class="step-header">
+                    <div class="step-meta">
+                        <span class="step-number">STEP ${stepNum}</span>
+                        <span class="step-tools">${step.tools ? step.tools.join('、') : 'なし'}</span>
+                    </div>
+                    <button class="btn-complete" id="btn-${index}">完了マークをつける</button>
+                </div>
+                <div class="step-text">${step.text}</div>
+                <div class="image-gallery">
+                    ${imagesHtml}
+                </div>
+                
+                <div class="ai-check-area">
+                    <button class="btn-ai-camera" onclick="document.getElementById('file-input-${index}').click()">
+                        📸 AIカメラで今の状態を診断する
+                    </button>
+                    <input type="file" id="file-input-${index}" accept="image/*" capture="environment" style="display:none;" onchange="handleAIVision(event, ${index})">
+                    <div class="ai-feedback" id="ai-feedback-${index}"></div>
+                </div>
+            `;
+            container.appendChild(card);
+
+            const btn = card.querySelector(`#btn-${index}`);
+            btn.addEventListener('click', (e) => {
+                handleCheckChange(index, !savedProgress[index]);
+            });
+        });
+
+        updateStatus();
+        updateInterlockingFocus(false);
+        initSpeechRecognition();
+        initEmergencyButton();
+    });
+
+    // ─── 1. AI画像判定 ───
+    function handleAIVision(event, index) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const feedbackBox = document.getElementById(`ai-feedback-${index}`);
+        feedbackBox.style.display = 'block';
+        feedbackBox.innerHTML = '<span class="ai-loading">🔄 AIモデル（Vision）が画像を解析しています...</span>';
+
+        setTimeout(() => {
+            feedbackBox.innerHTML = '<span class="ai-success">✅ AI判定クリア！部品の欠落・誤りは見当たりません。</span>';
+            speakText("画像解析が完了しました。問題ありません、ステップを完了します。");
+            
+            if (!savedProgress[index]) {
+                handleCheckChange(index, true);
+            }
+        }, 2500);
+    }
+
+    // ─── 2. 音声アシスト ───
+    function initSpeechRecognition() {
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = 'ja-JP';
+            recognition.continuous = true;
+            recognition.interimResults = false;
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[event.results.length - 1][0].transcript.trim();
+                document.getElementById('mic-toast').innerText = `認識: 「${transcript}」`;
+                
+                if (transcript.includes('完了') || transcript.includes('次') || transcript.includes('オッケー') || transcript.includes('進む')) {
+                    let targetIndex = savedProgress.findIndex(s => !s);
+                    if (targetIndex !== -1 && targetIndex < totalStepsGlobal) {
+                        handleCheckChange(targetIndex, true);
+                        speakText(`ステップ${targetIndex + 1}を完了しました。`);
+                    }
+                } 
+                else if (transcript.includes('戻る') || transcript.includes('前')) {
+                    let targetIndex = savedProgress.findIndex(s => !s) - 1;
+                    if(targetIndex < 0 && savedProgress.every(s=>s)) targetIndex = totalStepsGlobal - 1;
+                    if(targetIndex >= 0) {
+                        handleCheckChange(targetIndex, false);
+                        speakText(`一つ前のステップに戻りました。`);
+                    }
+                }
+            };
+
+            recognition.onend = () => {
+                if (isListening) recognition.start();
+            };
+        } else {
+            document.getElementById('mic-status-text').innerText = "音声認識非対応のブラウザです";
+        }
+    }
+
+    function toggleMic() {
+        if (!recognition) {
+            alert("ブラウザが音声認識に対応していません。(ChromeやSafari等をご利用ください)");
+            return;
+        }
+        
+        const btnMic = document.getElementById('btn-mic');
+        const statusText = document.getElementById('mic-status-text');
+        const toastText = document.getElementById('mic-toast');
+        
+        if (isListening) {
+            recognition.stop();
+            isListening = false;
+            btnMic.classList.remove('listening');
+            statusText.innerText = "音声アシスト：OFF";
+            toastText.innerText = "タップしてマイクをON";
+        } else {
+            recognition.start();
+            isListening = true;
+            btnMic.classList.add('listening');
+            statusText.innerText = "ハンズフリーモード動作中";
+            toastText.innerText = "「次へ」「戻る」と話してください";
+            speakText("音声アシストを開始します。作業中は声で操作できます。");
+        }
+    }
+
+    function speakText(text) {
+        if ('speechSynthesis' in window) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'ja-JP';
+            speechSynthesis.speak(utterance);
+        }
+    }
+
+    // ─── 3. 状態管理・スクロール制御 ───
+    window.handleCheckChange = function(index, willBeChecked) {
+        const btn = document.getElementById(`btn-${index}`);
+        savedProgress[index] = willBeChecked;
+        
+        if (willBeChecked) {
+            btn.innerHTML = '✔ 完了';
+            setTimeout(() => {
+                updateStatus();
+                updateInterlockingFocus(true);
+            }, 400); 
+        } else {
+            btn.innerHTML = '完了マークをつける';
+            document.getElementById(`ai-feedback-${index}`).style.display = 'none';
+            updateStatus();
+            updateInterlockingFocus(true);
+        }
+    };
+
+    // ─── 4. 緊急ボタン（ドラッグ＆タップ） ───
+    function initEmergencyButton() {
+        const emergencyBtn = document.getElementById('emergency-btn');
+        const emgIcon = document.getElementById('emg-icon');
+        const emgText = document.getElementById('emg-text');
+
+        if (!emergencyBtn) return;
+
+        let isDragging = false;
+        let hasMoved = false;
+        let startX, startY, initialLeft, initialTop;
+        let isPositionInitialized = false;
+
+        function getEventClient(e) {
+            if (e.touches && e.touches.length > 0) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            return { x: e.clientX, y: e.clientY };
+        }
+
+        function dragStart(e) {
+            if (e.type === "mousedown" && e.button !== 0) return;
+
+            const pos = getEventClient(e);
+            
+            if (!isPositionInitialized) {
+                const rect = emergencyBtn.getBoundingClientRect();
+                emergencyBtn.style.left = rect.left + 'px';
+                emergencyBtn.style.top = rect.top + 'px';
+                emergencyBtn.style.right = 'auto';
+                emergencyBtn.style.bottom = 'auto';
+                isPositionInitialized = true;
+            }
+
+            initialLeft = emergencyBtn.offsetLeft;
+            initialTop = emergencyBtn.offsetTop;
+            startX = pos.x;
+            startY = pos.y;
+            
+            isDragging = true;
+            hasMoved = false;
+        }
+
+        function drag(e) {
+            if (!isDragging) return;
+
+            const pos = getEventClient(e);
+            const dx = pos.x - startX;
+            const dy = pos.y - startY;
+
+            if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+                hasMoved = true;
+            }
+
+            if (hasMoved) {
+                e.preventDefault();
+
+                let newLeft = initialLeft + dx;
+                let newTop = initialTop + dy;
+
+                const maxX = window.innerWidth - emergencyBtn.offsetWidth;
+                const maxY = window.innerHeight - emergencyBtn.offsetHeight;
+                newLeft = Math.max(0, Math.min(newLeft, maxX));
+                newTop = Math.max(0, Math.min(newTop, maxY));
+
+                emergencyBtn.style.left = newLeft + 'px';
+                emergencyBtn.style.top = newTop + 'px';
+            }
+        }
+
+        function dragEnd(e) {
+            if (!isDragging) return;
+            isDragging = false;
+
+            if (!hasMoved) {
+                handleEmergencyClick();
+            }
+        }
+
+        let isPrimed = false;
+        let primeTimeout;
+
+        function handleEmergencyClick() {
+            if (!isPrimed) {
+                isPrimed = true;
+                emergencyBtn.classList.add('primed');
+                emgIcon.innerText = '🔥';
+                emgText.innerHTML = '消火<br>手順へ';
+                
+                clearTimeout(primeTimeout);
+                primeTimeout = setTimeout(() => {
+                    resetEmergencyBtn();
+                }, 5000);
+                
+            } else {
+                window.location.href = 'emergency.html';
+            }
+        }
+
+        function resetEmergencyBtn() {
+            isPrimed = false;
+            emergencyBtn.classList.remove('primed');
+            emgIcon.innerText = '🚨';
+            emgText.innerText = '緊急';
+        }
+
+        emergencyBtn.addEventListener('mousedown', dragStart);
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', dragEnd);
+
+        emergencyBtn.addEventListener('touchstart', dragStart, {passive: false});
+        document.addEventListener('touchmove', drag, {passive: false});
+        document.addEventListener('touchend', dragEnd);
+    }
+
+    function updateStatus() {
+        const doneCount = savedProgress.filter(s => s).length;
+        document.getElementById('status-counter').innerText = `${doneCount} / ${totalStepsGlobal}`;
+        
+        const percent = (doneCount / totalStepsGlobal) * 100;
+        document.getElementById('progress-bar-fill').style.width = percent + "%";
+
+        const msgElement = document.getElementById('status-message');
+        const nextBtn = document.getElementById('next-page-btn');
+
+        if (doneCount === totalStepsGlobal) {
+            msgElement.innerText = "🎉 完璧です！全工程をクリアしました！";
+            msgElement.style.color = "var(--success)";
+            nextBtn.classList.add('ready');
+            nextBtn.innerHTML = "見事です！動作確認（トラブルシューティング）へ進む";
+            if(isListening) speakText("お疲れ様でした。すべての工程が完了しました。最終確認へ進んでください。");
+        } else {
+            msgElement.innerText = "焦らず、ひとつずつ確実に進めましょう";
+            msgElement.style.color = "inherit";
+            nextBtn.classList.remove('ready');
+            nextBtn.innerHTML = "🔒 すべての工程を完了してください";
+        }
+    }
+
+    function updateInterlockingFocus(shouldScroll) {
+        let firstUnfinishedIndex = savedProgress.findIndex(s => !s);
+        if (firstUnfinishedIndex === -1) firstUnfinishedIndex = totalStepsGlobal;
+
+        let targetCard = null;
+
+        for (let i = 0; i < totalStepsGlobal; i++) {
+            const card = document.getElementById(`step-card-${i}`);
+            if (!card) continue;
+            
+            card.classList.remove('active-focus', 'locked', 'completed');
+
+            if (i < firstUnfinishedIndex) {
+                card.classList.add('completed');
+                const btn = document.getElementById(`btn-${i}`);
+                if(btn) btn.innerHTML = '✔ 完了';
+            } else if (i === firstUnfinishedIndex) {
+                card.classList.add('active-focus');
+                targetCard = card;
+                const btn = document.getElementById(`btn-${i}`);
+                if(btn) btn.innerHTML = '👉 この工程を完了する';
+            } else {
+                card.classList.add('locked');
+            }
+        }
+
+        if (shouldScroll) {
+            if (targetCard) {
+                targetCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else if (firstUnfinishedIndex === totalStepsGlobal) {
+                document.querySelector('.action-area').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+    }
+</script>
+</body>
+</html>

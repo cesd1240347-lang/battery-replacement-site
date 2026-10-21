@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>バッテリーの取り扱いと廃棄に関する重要事項</title>
+    <link rel="icon" href="./images/favicon.ico" type="image/x-icon">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --danger: #ef4444;
+            --danger-glow: rgba(239, 68, 68, 0.15);
+            --warning: #f59e0b;
+            --warning-glow: rgba(245, 158, 11, 0.12);
+            --bg: #080e1a;
+            --bg-mid: #0f172a;
+            --card: #131f35;
+            --card-border: #1e3050;
+            --card-hover: #182540;
+            --text: #e8eef8;
+            --text-sub: #7a91b4;
+            --text-dim: #4a6080;
+            --success: #10b981;
+            --success-glow: rgba(16, 185, 129, 0.2);
+            --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.12);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.8;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* ─── Progress bar ─── */
+        #progress-track {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 4px;
+            background: #1a2540; z-index: 9999;
+        }
+        #progress-fill {
+            height: 100%; width: 0%;
+            background: linear-gradient(90deg, var(--warning), var(--danger));
+            transition: width 0.15s linear;
+        }
+
+        /* ─── Layout ─── */
+        .wrapper { max-width: 820px; margin: 0 auto; padding: 80px 24px 60px; }
+
+        /* ─── Header ─── */
+        header { text-align: center; margin-bottom: 64px; }
+        .header-eyebrow {
+            display: inline-block; font-size: 11px; font-weight: 700;
+            letter-spacing: 0.25em; text-transform: uppercase;
+            color: var(--danger); background: var(--danger-glow);
+            border: 1px solid rgba(239,68,68,0.3); padding: 4px 16px;
+            border-radius: 100px; margin-bottom: 20px;
+        }
+        header h1 {
+            font-size: clamp(28px, 5vw, 42px); font-weight: 900;
+            letter-spacing: -0.03em; background: linear-gradient(135deg, #f43f5e 0%, #fb923c 60%, #fbbf24 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; line-height: 1.15; margin-bottom: 14px;
+        }
+        header p { color: var(--text-sub); font-size: 15px; max-width: 480px; margin: 0 auto; }
+
+        /* ─── Section numbering ─── */
+        .section-header-flex {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+        .section-label { display: flex; align-items: center; gap: 12px; }
+        .section-num {
+            flex-shrink: 0; width: 32px; height: 32px; background: var(--primary);
+            color: #fff; font-size: 13px; font-weight: 800; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .section-num.danger { background: var(--danger); }
+        .section-num.warning { background: var(--warning); color: #000; }
+        .section-num.success { background: var(--success); }
+        .section-title { font-size: 20px; font-weight: 800; color: #fff; letter-spacing: -0.01em; }
+
+        /* ─── 詳細ボタン (追加) ─── */
+        .btn-more-info {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 8px 16px;
+            border-radius: 100px;
+            text-decoration: none;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+            transition: all 0.25s ease;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .btn-more-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+            background: linear-gradient(135deg, #4f46e5, #4338ca);
+        }
+
+        /* ─── Card ─── */
+        .card {
+            background: var(--card); border: 1px solid var(--card-border);
+            border-radius: 20px; padding: 36px 40px; margin-bottom: 28px;
+            position: relative; overflow: hidden;
+        }
+        .card.danger-card { border-color: rgba(239,68,68,0.25); }
+        .card.warning-card { border-color: rgba(245,158,11,0.2); }
+        .card.success-card { border-color: rgba(16,185,129,0.2); }
+
+        p { color: #b8c8e0; font-size: 15px; margin-bottom: 16px; }
+        p:last-child { margin-bottom: 0; }
+        strong { color: var(--text); }
+
+        /* ─── Marks ─── */
+        .marks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+        .mark-card { background: #0a1528; border: 1px solid var(--card-border); border-radius: 14px; padding: 20px; text-align: center; }
+        .mark-image-box { width: 100%; height: 110px; background: #f0f0f0; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; overflow: hidden; }
+        .mark-image-box img { max-width: 80%; max-height: 80%; object-fit: contain; }
+        .mark-name { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+        .mark-desc { font-size: 12px; color: var(--text-sub); line-height: 1.5; }
+
+        /* ─── Risk list (タップUI) ─── */
+        .risk-list { list-style: none; padding: 0; margin: 0 0 16px; }
+        .risk-item {
+            display: flex; align-items: flex-start; gap: 14px;
+            background: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border);
+            border-radius: 12px; padding: 16px 18px; margin-bottom: 10px;
+            cursor: pointer; transition: all 0.2s ease; user-select: none;
+        }
+        .risk-item:hover { background: rgba(239,68,68,0.03); border-color: rgba(239,68,68,0.3); }
+        .risk-item.read {
+            background: rgba(239,68,68,0.06); border-color: rgba(239,68,68,0.4);
+            box-shadow: inset 0 0 10px rgba(239, 68, 68, 0.1);
+        }
+        .risk-icon { flex-shrink: 0; width: 36px; height: 36px; background: #1e2d4a; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.2s; }
+        .risk-item.read .risk-icon { background: rgba(239,68,68,0.2); text-shadow: 0 0 8px rgba(239,68,68,0.6); }
+        .risk-text { flex: 1; }
+        .risk-text strong { display: flex; align-items: center; justify-content: space-between; font-size: 14px; color: #94a3b8; margin-bottom: 3px; }
+        .risk-item.read .risk-text strong { color: #fca5a5; }
+        .risk-text span { font-size: 13px; color: #64748b; line-height: 1.5; }
+        .risk-item.read .risk-text span { color: #94a3b8; }
+        .risk-status-badge { font-size: 11px; padding: 2px 8px; border-radius: 4px; background: #1e293b; color: var(--text-dim); }
+        .risk-item.read .risk-status-badge { background: var(--danger); color: #fff; }
+
+        /* ─── Video ─── */
+        .video-label { font-size: 13px; color: var(--text-sub); margin: 20px 0 8px; display: flex; align-items: center; gap: 8px; }
+        .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 8px; }
+        .video-wrap { background: #050b15; border: 1px solid #1e3050; border-radius: 12px; overflow: hidden; position: relative; }
+        .video-ratio { position: relative; padding-top: 56.25%; }
+        .video-ratio video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+
+        /* ─── Quality Check ─── */
+        .check-warning-bar { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); border-radius: 10px; padding: 12px 16px; font-size: 13px; color: #fca5a5; margin-bottom: 20px; }
+        .checklist { list-style: none; padding: 0; margin: 0; }
+        .check-item { display: flex; align-items: flex-start; gap: 14px; padding: 14px 12px; border-bottom: 1px solid #1a2e4a; cursor: pointer; user-select: none; border-radius: 8px; transition: background 0.2s; }
+        .check-item:hover { background: rgba(255,255,255,0.03); }
+        .check-box { flex-shrink: 0; width: 22px; height: 22px; border: 2px solid #2a4060; border-radius: 6px; background: #0a1528; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+        .check-box .checkmark { display: none; color: #fff; font-size: 13px; }
+        .check-item.checked .check-box { background: var(--danger); border-color: var(--danger); }
+        .check-item.checked .check-box .checkmark { display: block; }
+        .check-text { flex: 1; }
+        .check-text .main { font-size: 14px; color: #d1ddf0; font-weight: 600; }
+        
+        /* 動的リスク表示用グリッド */
+        .poor-quality-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
+        .pq-card { background: rgba(239, 68, 68, 0.04); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 14px; padding: 20px; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.05); }
+        .pq-title { font-size: 13px; font-weight: 800; color: #fca5a5; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        .pq-risk-desc { font-size: 12px; color: #94a3b8; line-height: 1.6; }
+
+        /* ─── ロゴ画像表示 ─── */
+        .image-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 12px 0; }
+        .img-card { background: #0a1528; border: 1px solid #1e3050; border-radius: 12px; overflow: hidden; text-align: center; }
+        .img-box { width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 12px; }
+        .img-box img { width: 100%; height: 100%; object-fit: contain; }
+        .img-cap { padding: 8px 10px; font-size: 12px; font-weight: 600; color: #94a3b8; background: #0d1a2d; border-top: 1px solid #1e3050; }
+
+        /* ─── 絶縁テープ UI ─── */
+        .tape-game-area {
+            background: #0d1627; border: 2px dashed #38bdf8; border-radius: 16px;
+            padding: 30px 20px; text-align: center; margin: 20px 0; position: relative;
+        }
+        .tape-game-title { font-size: 16px; font-weight: 800; color: #38bdf8; margin-bottom: 20px; }
+        .virtual-battery {
+            width: 100px; height: 160px; background: #2a3441; border: 2px solid #4a5568;
+            border-radius: 8px; margin: 0 auto 30px; position: relative;
+            display: flex; align-items: center; justify-content: center; color: #cbd5e1; font-weight: bold;
+        }
+        .virtual-terminal { width: 50px; height: 15px; background: #b45309; border-radius: 4px 4px 0 0; position: absolute; top: -15px; left: 50%; transform: translateX(-50%); }
+        .virtual-tape {
+            width: 70px; height: 25px; background: rgba(56, 189, 248, 0.85);
+            border-radius: 3px; position: absolute; top: -35px; left: 50%; transform: translateX(-50%);
+            opacity: 0; pointer-events: none; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            display: flex; align-items: center; justify-content: center; font-size: 10px; color: #fff;
+        }
+        .slider-container { max-width: 300px; margin: 0 auto; }
+        .slider-label { font-size: 13px; color: var(--text-sub); margin-bottom: 10px; display: block; }
+        input[type="range"] { width: 100%; height: 12px; background: #1e293b; border-radius: 6px; outline: none; -webkit-appearance: none; cursor: pointer; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 28px; height: 28px; border-radius: 50%; background: #38bdf8; cursor: pointer; box-shadow: 0 0 10px rgba(56, 189, 248, 0.5); }
+        .success-msg { color: var(--success); font-weight: bold; font-size: 15px; margin-top: 15px; display: none; }
+        .success-msg.show { display: block; animation: fadeInUp 0.5s ease forwards; }
+
+        /* ─── Geo Location Map UI ─── */
+        .locked-disposal-area { filter: blur(8px); pointer-events: none; opacity: 0.6; transition: all 0.5s ease; user-select: none; }
+        .locked-disposal-area.unlocked { filter: blur(0); pointer-events: auto; opacity: 1; }
+        .geo-map-box { background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(56, 189, 248, 0.1)); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 16px; padding: 24px; text-align: center; margin-bottom: 24px; }
+        .geo-map-title { font-size: 16px; font-weight: bold; color: #fff; margin-bottom: 10px; }
+        .btn-geo { background: var(--success); color: #fff; border: none; border-radius: 12px; padding: 16px 24px; font-size: 15px; font-weight: 800; cursor: pointer; box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3); transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; width: 100%; max-width: 350px; justify-content: center; }
+        .btn-geo:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4); }
+
+        /* ─── ファイナルチェッククイズ ─── */
+        .quiz-card { border-color: rgba(99, 102, 241, 0.3); background: linear-gradient(135deg, #131f35 0%, #111a2e 100%); }
+        .quiz-question { font-size: 16px; font-weight: 800; color: #fff; text-align: center; margin-bottom: 20px; }
+        .quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; max-width: 400px; margin: 0 auto; }
+        .btn-quiz {
+            padding: 14px; border-radius: 10px; border: 1px solid var(--card-border);
+            background: #0d1627; color: #fff; font-weight: bold; font-size: 15px;
+            cursor: pointer; transition: all 0.2s ease;
+        }
+        .btn-quiz:hover { border-color: var(--primary); background: rgba(99, 102, 241, 0.05); }
+        .btn-quiz.wrong-selected { background: rgba(239, 68, 68, 0.2); border-color: var(--danger); color: #fca5a5; }
+        .btn-quiz.correct-selected { background: rgba(16, 185, 129, 0.2); border-color: var(--success); color: #a7f3d0; }
+        .quiz-feedback { text-align: center; margin-top: 15px; font-size: 14px; font-weight: bold; min-height: 24px; }
+
+        /* ─── Action area ─── */
+        .action-area { text-align: center; margin-top: 48px; padding-top: 32px; border-top: 1px solid #1e3050; }
+        .action-hint { font-size: 14px; color: var(--danger); margin-bottom: 16px; font-weight: bold; transition: color 0.3s; }
+        .btn-submit {
+            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; max-width: 440px; padding: 18px 32px; background: #1a2e4a;
+            color: #3a5070; border: 1px solid #1e3050; border-radius: 14px;
+            font-size: 16px; font-weight: 700; cursor: not-allowed; text-decoration: none; transition: all 0.3s ease;
+        }
+        .btn-submit.ready { background: linear-gradient(135deg, var(--success), #059669); color: #fff; border-color: transparent; cursor: pointer; box-shadow: 0 8px 32px rgba(16, 185, 129, 0.3); }
+        .btn-submit.ready:hover { transform: translateY(-2px); }
+
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 640px) {
+            .card { padding: 24px 20px; }
+            .marks-grid, .video-grid, .image-grid-3, .quiz-options, .poor-quality-grid { grid-template-columns: 1fr; }
+            header h1 { font-size: 28px; }
+            .section-header-flex { flex-direction: column; align-items: flex-start; }
+            .btn-more-info { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="progress-track"><div id="progress-fill"></div></div>
+
+<div class="wrapper">
+
+    <header>
+        <div class="header-eyebrow">IMPORTANT NOTICE</div>
+        <h1>ATTENTION & DISPOSAL</h1>
+        <p>バッテリーの取り扱いリスクと、重大な事故を防ぐための正しい廃棄方法</p>
+    </header>
+
+    <div class="card">
+        <div class="section-label"><div class="section-num">01</div><div class="section-title">リチウムイオン電池を見分けるには</div></div>
+        <p>リチウムイオン電池かどうかを判断する際は、本体に刻印・印刷された<strong>2つのマーク</strong>が目安になります。</p>
+        <div class="marks-grid">
+            <div class="mark-card">
+                <div class="mark-image-box"><img src="images/pse_mark.jpg" alt="PSEマーク" onerror="this.parentElement.innerHTML='<div class=\'mark-placeholder\'>画像：images/pse_mark.jpg</div>'"></div>
+                <div class="mark-name">PSEマーク</div>
+                <div class="mark-desc">安全基準を満たした製品の国内認証マーク。リチウムイオン電池は<strong>丸形PSE</strong>が対象です。</div>
+            </div>
+            <div class="mark-card">
+                <div class="mark-image-box"><img src="images/recycle_mark.jpg" alt="リサイクルマーク" onerror="this.parentElement.innerHTML='<div class=\'mark-placeholder\'>画像：images/recycle_mark.jpg</div>'"></div>
+                <div class="mark-name">リサイクルマーク（Li-ion）</div>
+                <div class="mark-desc">小型二次電池のリサイクル対象であることを示します。</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 02 セクション (ボタンを追加) -->
+    <div class="card danger-card">
+        <div class="section-header-flex">
+            <div class="section-label">
+                <div class="section-num danger">02</div>
+                <div class="section-title">リチウムイオン電池の性質とリスク</div>
+            </div>
+            <a href="lithium-ion_battery.html" id="btn-to-details" class="btn-more-info">
+                <span>📖 リチウムイオンについて詳しく知る</span>
+                <span>→</span>
+            </a>
+        </div>
+
+        <p style="margin-bottom: 20px;">誤った取り扱いは<strong style="color:#fca5a5">発熱・発火・破裂につながる重大なリスク</strong>があります。<br><span style="font-size:13px; color:var(--text-sub);">※各項目をタップして内容をしっかりと確認してください。</span></p>
+        
+        <ul class="risk-list">
+            <li class="risk-item" data-risk="0">
+                <div class="risk-icon">💥</div>
+                <div class="risk-text">
+                    <strong>強い圧力・衝撃を与えない <span class="risk-status-badge">未確認</span></strong>
+                    <span>落下・踏みつけ・曲げは絶対に避けてください。内部ショートの原因になります。</span>
+                </div>
+            </li>
+            <li class="risk-item" data-risk="1">
+                <div class="risk-icon">🌡️</div>
+                <div class="risk-text">
+                    <strong>高温環境での使用・保管禁止 <span class="risk-status-badge">未確認</span></strong>
+                    <span>夏場の車内や直射日光の当たる場所では、セルの膨張から発火へ至るリスクが急上昇します。</span>
+                </div>
+            </li>
+            <li class="risk-item" data-risk="2">
+                <div class="risk-icon">🔥</div>
+                <div class="risk-text">
+                    <strong>可燃物を近くに置かない <span class="risk-status-badge">未確認</span></strong>
+                    <span>万が一の熱暴走に備え、作業時や保管時は紙・布・木材などの近くを厳禁としてください。</span>
+                </div>
+            </li>
+            <li class="risk-item" data-risk="3">
+                <div class="risk-icon">🛑</div>
+                <div class="risk-text">
+                    <strong>異常感知時は即座に使用中止 <span class="risk-status-badge">未確認</span></strong>
+                    <span>わずかな膨張、異臭、異常な発熱を感じた場合は直ちに使用および充電を停止してください。</span>
+                </div>
+            </li>
+        </ul>
+
+        <div class="video-label">▶ 参考動画：実際のリチウムイオン電池火災事例</div>
+        <div class="video-grid">
+            <div class="video-wrap" id="v-wrap-1">
+                <div class="video-ratio">
+                    <video id="video-1" controls preload="metadata" playsinline><source src="images/battery_fire_1.mp4" type="video/mp4"></video>
+                </div>
+            </div>
+            <div class="video-wrap" id="v-wrap-2">
+                <div class="video-ratio">
+                    <video id="video-2" controls preload="metadata" playsinline><source src="images/battery_fire_2.mp4" type="video/mp4"></video>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card warning-card">
+        <div class="section-label"><div class="section-num warning">03</div><div class="section-title">用意したバッテリーは安全ですか？</div></div>
+        <div class="check-warning-bar">⚠️ 粗悪品のリスクを排除するため、すべての項目を確認・チェックしてください。</div>
+        <ul class="checklist" id="qualityChecklist">
+            <li class="check-item" data-index="0"><div class="check-box"><span class="checkmark">✓</span></div><div class="check-text"><div class="main">バッテリー本体に「PSEマーク」がない</div></div></li>
+            <li class="check-item" data-index="1"><div class="check-box"><span class="checkmark">✓</span></div><div class="check-text"><div class="main">価格が安すぎる（2,000円未満）</div></div></li>
+            <li class="check-item" data-index="2"><div class="check-box"><span class="checkmark">✓</span></div><div class="check-text"><div class="main">保証期間が短すぎる（初期不良のみなど）</div></div></li>
+        </ul>
+
+        <!-- 動的に展開されるリスク解説パネル -->
+        <div id="quality-risk-panel" style="display: none; margin-top: 24px; animation: fadeInUp 0.4s ease forwards;">
+            <p style="font-size: 14px; font-weight: bold; color: #fca5a5; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                🚨 検出された粗悪品リスクの詳細:
+            </p>
+            <div class="poor-quality-grid" id="risk-cards-container">
+                <!-- JSにより動的に挿入されます -->
+            </div>
+        </div>
+    </div>
+
+    <div class="card success-card" style="padding-bottom: 20px;">
+        <div class="section-label"><div class="section-num success">04</div><div class="section-title">正しい廃棄方法（一般ゴミ廃棄は厳禁）</div></div>
+        <p>交換した古い電池は<strong style="color:#fca5a5">燃えるゴミへの廃棄は絶対にできません。</strong>収集車内での大規模火災事故につながります。</p>
+
+        <div class="tape-game-area" id="tape-game">
+            <div class="tape-game-title">🔐 安全ロック解除：端子を絶縁してください</div>
+            <p style="font-size: 13px; color: #94a3b8; margin-bottom: 20px;">ショート（発火）を防ぐため、廃棄前に必ず出力端子にテープを貼る必要があります。スライダーを右に引いてテープを貼ってください。</p>
+            
+            <div class="virtual-battery">
+                <div class="virtual-terminal"></div>
+                <div class="virtual-tape" id="v-tape"></div>
+                Battery
+            </div>
+
+            <div class="slider-container">
+                <span class="slider-label" id="slider-txt">スライドしてテープを貼る 👉</span>
+                <input type="range" id="tape-slider" min="0" max="100" value="0">
+            </div>
+            <div class="success-msg" id="tape-success-msg">✅ 絶縁完了！回収ルートのロックが解除されました。</div>
+        </div>
+
+        <div class="locked-disposal-area" id="locked-area">
+            <div class="geo-map-box">
+                <div class="geo-map-title">🗺️ お住まいの近くの回収ボックスを探す</div>
+                <p style="font-size:13px; color:#94a3b8; margin-bottom: 16px;">GPSを使用して、現在地周辺の協力店（家電量販店等）をGoogleマップで直接表示します。</p>
+                <button class="btn-geo" id="btn-geo-map">📍 現在地から回収店を探す</button>
+            </div>
+
+            <p style="font-size:14px; font-weight:bold; color:#fff; margin-top:20px; border-left:4px solid #38bdf8; padding-left:10px;">主な回収ルート（JBRC協力店）</p>
+            <div class="image-grid-3">
+                <div class="img-card"><div class="img-box"><img src="images/yamada.jpg" alt="ヤマダデンキ" onerror="this.style.display='none'"></div><div class="img-cap">ヤマダデンキ</div></div>
+                <div class="img-card"><div class="img-box"><img src="images/edion.jpg" alt="エディオン" onerror="this.style.display='none'"></div><div class="img-cap">エディオン</div></div>
+                <div class="img-card"><div class="img-box"><img src="images/ks.jpg" alt="ケーズデンキ" onerror="this.style.display='none'"></div><div class="img-cap">ケーズデンキ</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card quiz-card">
+        <div class="section-label"><div class="section-num" style="background:var(--primary)">Q</div><div class="section-title">流し読み防止最終チェック</div></div>
+        <div class="quiz-question">取り外した古いリチウムイオン電池は、家庭の「燃えるゴミ」や「不燃ゴミ」として廃棄してもよいですか？</div>
+        <div class="quiz-options">
+            <button class="btn-quiz" id="quiz-yes">はい（自治体が回収する）</button>
+            <button class="btn-quiz" id="quiz-no">いいえ（一般ゴミ廃棄は絶対厳禁）</button>
+        </div>
+        <div class="quiz-feedback" id="quiz-feedback"></div>
+    </div>
+
+    <div class="action-area">
+        <div class="action-hint" id="scroll-hint">⚠️ リスクの確認、テープ絶縁、クイズへの正解が必要です</div>
+        <button id="btn-next-step" class="btn-submit" disabled>
+            危険性と廃棄方法を理解して手順へ進む
+            <span class="arrow">→</span>
+        </button>
+    </div>
+
+</div>
+
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const deviceKey = urlParams.get('device') || '';
+    const btnNext = document.getElementById('btn-next-step');
+    const scrollHint = document.getElementById('scroll-hint');
+    const progressFill = document.getElementById('progress-fill');
+
+    // 「リチウムイオンについて詳しく知る」ボタンにdeviceパラメータを動的付与
+    const btnToDetails = document.getElementById('btn-to-details');
+    if (btnToDetails) {
+        btnToDetails.href = `lithium-ion_battery.html?device=${encodeURIComponent(deviceKey)}`;
+    }
+
+    // アンロック条件の管理ステート（動画・安全チェックを必須項目から除外）
+    let risksRead = [false, false, false, false]; 
+    let checklistChecked = [false, false, false];
+    let isTaped = false;
+    let quizCorrect = false; 
+
+    // 詳細なリスクデータベース
+    const riskDetails = [
+        {
+            title: "⚠️ PSE未認証・非適合リスク",
+            desc: "電気用品安全法(PSE)の技術基準を満たしていない可能性が極めて高く、過充電・過放電防止の「保護回路」が省かれている場合があります。充電中や使用中に内部ショートを誘発し、発火・熱暴走に至る危険が極めて高い状態です。"
+        },
+        {
+            title: "💸 超低価格セルの安全性欠如",
+            desc: "2,000円未満等の異常に安価な製品は、内圧上昇時にガスを逃がす「安全弁」が省略されているか、破棄された他のバッテリーから回収した「劣化中古セル」をそのまま包み直して再利用している疑いがあり、破裂・爆発の危険性が跳ね上がります。"
+        },
+        {
+            title: "🛡️ 品質管理とエージング未実施",
+            desc: "保証期間が数日〜初期不良のみといった極端な製品は、出荷前の充放電・検査プロセスが完全に省略されています。内部に微小な金属ゴミ（コンタミ）が混入したまま出荷されている確率が高く、突然内部ショートを起こすリスクを常時抱えています。"
+        }
+    ];
+
+    // ── スクロールプログレスバー ──
+    window.addEventListener('scroll', () => {
+        const winScroll = document.documentElement.scrollTop || document.body.scrollTop;
+        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        progressFill.style.width = (height > 0 ? (winScroll / height) * 100 : 0) + '%';
+    }, { passive: true });
+
+    // ── リスク項目のタップ検知 ──
+    const riskItems = document.querySelectorAll('.risk-item');
+    riskItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const idx = parseInt(item.getAttribute('data-risk'));
+            risksRead[idx] = true;
+            item.classList.add('read');
+            const badge = item.querySelector('.risk-status-badge');
+            if (badge) {
+                badge.innerText = '✔ 確認済';
+            }
+            checkUnlock();
+        });
+    });
+
+    // ── 品質チェックリスト & 動的リスク表示（任意入力） ──
+    const items = document.querySelectorAll('.check-item');
+    const riskPanel = document.getElementById('quality-risk-panel');
+    const riskCardsContainer = document.getElementById('risk-cards-container');
+
+    items.forEach(item => {
+        item.addEventListener('click', () => {
+            item.classList.toggle('checked');
+            const idx = parseInt(item.getAttribute('data-index'));
+            checklistChecked[idx] = item.classList.contains('checked');
+            
+            updateQualityRisks();
+            // ※チェック有無はロック解除条件に影響しないため checkUnlock() は呼び出さない（または呼んでも無視されます）
+        });
+    });
+
+    function updateQualityRisks() {
+        riskCardsContainer.innerHTML = '';
+        let hasCheckedAny = false;
+
+        checklistChecked.forEach((checked, idx) => {
+            if (checked) {
+                hasCheckedAny = true;
+                const card = document.createElement('div');
+                card.className = 'pq-card';
+                card.style.animation = 'fadeInUp 0.3s ease forwards';
+                card.innerHTML = `
+                    <div class="pq-title">
+                        <span>${riskDetails[idx].title}</span>
+                    </div>
+                    <div class="pq-risk-desc">
+                        ${riskDetails[idx].desc}
+                    </div>
+                `;
+                riskCardsContainer.appendChild(card);
+            }
+        });
+
+        if (hasCheckedAny) {
+            riskPanel.style.display = 'block';
+        } else {
+            riskPanel.style.display = 'none';
+        }
+    }
+
+    // ── テープ貼りUI ──
+    const tapeSlider = document.getElementById('tape-slider');
+    const vTape = document.getElementById('v-tape');
+    const lockedArea = document.getElementById('locked-area');
+    const successMsg = document.getElementById('tape-success-msg');
+    const sliderTxt = document.getElementById('slider-txt');
+
+    tapeSlider.addEventListener('input', (e) => {
+        let val = e.target.value;
+        vTape.style.opacity = val / 100;
+        vTape.style.top = `${-35 + (val * 0.2)}px`;
+
+        if (val == 100) {
+            tapeSlider.disabled = true;
+            vTape.style.background = "#10b981";
+            lockedArea.classList.add('unlocked');
+            successMsg.classList.add('show');
+            sliderTxt.style.color = "#10b981";
+            sliderTxt.innerText = "保護が完了しました";
+            
+            isTaped = true;
+            checkUnlock();
+        }
+    });
+
+    // ── ファイナルチェッククイズ ──
+    const btnYes = document.getElementById('quiz-yes');
+    const btnNo = document.getElementById('quiz-no');
+    const quizFeedback = document.getElementById('quiz-feedback');
+
+    btnYes.addEventListener('click', () => {
+        quizCorrect = false;
+        btnYes.classList.add('wrong-selected');
+        btnNo.classList.remove('correct-selected');
+        quizFeedback.style.color = 'var(--danger)';
+        quizFeedback.innerText = '❌ 不正解：ゴミ収集車内での発火事故が多発しており、大変危険です。回収箱へお持ちください。';
+        checkUnlock();
+    });
+
+    btnNo.addEventListener('click', () => {
+        quizCorrect = true;
+        btnNo.classList.add('correct-selected');
+        btnYes.classList.remove('wrong-selected');
+        quizFeedback.style.color = 'var(--success)';
+        quizFeedback.innerText = '✅ 正解！家電量販店などのリサイクル協力店・回収ボックスへ出す必要があります。';
+        checkUnlock();
+    });
+
+    // ── 条件判定統合関数（緩和後） ──
+    function checkUnlock() {
+        const allRisksRead = risksRead.every(val => val === true);
+        
+        // ナビゲーション文言の制御（必要な条件のみチェック）
+        if (!allRisksRead) {
+            scrollHint.style.color = 'var(--danger)';
+            scrollHint.textContent = '⚠️ 02の「性質とリスク」の各項目（4点）をタップして内容を確認してください。';
+        } else if (!isTaped) {
+            scrollHint.style.color = 'var(--accent)';
+            scrollHint.textContent = '⚠️ 04の端子絶縁スライダーを最後まで引いてロックを解除してください。';
+        } else if (!quizCorrect) {
+            scrollHint.style.color = 'var(--primary)';
+            scrollHint.textContent = '⚠️ 最下部の「最終チェッククイズ」に正解すると進むことができます。';
+        }
+
+        // 必須3項目（リスク確認・テープ絶縁・クイズ正解）を満たしていれば進める
+        if (allRisksRead && isTaped && quizCorrect) {
+            btnNext.disabled = false;
+            btnNext.classList.add('ready');
+            scrollHint.style.color = '#10b981';
+            scrollHint.textContent = '✅ すべての安全確認が完了しました。ボタンを押して次へお進みください。';
+        } else {
+            btnNext.disabled = true;
+            btnNext.classList.remove('ready');
+        }
+    }
+
+    btnNext.addEventListener('click', () => {
+        if (!btnNext.disabled) {
+            window.location.href = `replacement_procedure.html?device=${encodeURIComponent(deviceKey)}`;
+        }
+    });
+
+    // ── Geolocation API ──
+    const btnGeo = document.getElementById('btn-geo-map');
+    btnGeo.addEventListener('click', () => {
+        const origText = btnGeo.innerText;
+        btnGeo.innerText = '📍 現在地を取得中...';
+
+        const openFallbackMap = () => {
+            alert('位置情報が取得できませんでした。周辺のリサイクル協力店を検索します。');
+            const query = encodeURIComponent('小型充電式電池 リサイクルBOX 協力店 家電量販店');
+            window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
+            btnGeo.innerText = origText;
+        };
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    const query = encodeURIComponent('小型充電式電池 リサイクルBOX 協力店 家電量販店');
+                    const url = `https://www.google.com/maps/search/?api=1&query=${query}&center=${lat},${lng}`;
+                    window.open(url, '_blank');
+                    btnGeo.innerText = origText;
+                },
+                (err) => { openFallbackMap(); },
+                { timeout: 6000, enableHighAccuracy: true }
+            );
+        } else {
+            openFallbackMap();
+        }
+    });
+});
+</script>
+</body>
+</html>
