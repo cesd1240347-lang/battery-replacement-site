@@ -64,17 +64,17 @@
 </div>
 
 <script>
-    // 未実装の機種に isImplemented: false を追加しました
     const database = {
         ios: {
             Apple: [
-                { name: "iPhone 13", url: "iphone13", isImplemented: false }, // 未実装
+                // ★ iPhone 13 の isImplemented を true に変更しました
+                { name: "iPhone 13", url: "iphone13", isImplemented: true }, 
                 { name: "iPhone 14", url: "iphone14", isImplemented: true }
             ]
         },
         android: {
             Google: [
-                { name: "Google Pixel 8", url: "googlepixel8", isImplemented: false }, // 未実装
+                { name: "Google Pixel 8", url: "googlepixel8", isImplemented: false }, // 未実装のまま
                 { name: "Google Pixel 7", url: "googlepixel7", isImplemented: true }
             ],
             Samsung: [
