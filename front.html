@@ -23,6 +23,9 @@
         
         .submit-btn { display: block; width: 100%; padding: 15px; background-color: #2ecc71; color: #fff; border: none; border-radius: 6px; font-size: 18px; font-weight: bold; cursor: pointer; text-align: center; margin-top: 20px; }
         .submit-btn:hover { background-color: #27ae60; }
+        
+        /* エラーメッセージ用のスタイル */
+        .error-message { color: #e74c3c; font-weight: bold; text-align: center; margin-top: 15px; }
     </style>
 </head>
 <body>
@@ -56,25 +59,27 @@
     </div>
 
     <button id="submit-btn" class="submit-btn hidden" onclick="goToProcedure()">この機種の交換手順を見る</button>
+    <!-- エラーメッセージ表示領域 -->
+    <div id="error-msg" class="error-message hidden"></div>
 </div>
 
 <script>
-    // 【連動のポイント】url の部分を apprentice.html が識別できるキーワード（iphone13 など）に書き換えました
+    // 未実装の機種に isImplemented: false を追加しました
     const database = {
         ios: {
             Apple: [
-                { name: "iPhone 13", url: "iphone13" },
-                { name: "iPhone 14", url: "iphone14" }
+                { name: "iPhone 13", url: "iphone13", isImplemented: false }, // 未実装
+                { name: "iPhone 14", url: "iphone14", isImplemented: true }
             ]
         },
         android: {
             Google: [
-                { name: "Google Pixel 8", url: "googlepixel8" },
-                { name: "Google Pixel 7", url: "googlepixel7" }
+                { name: "Google Pixel 8", url: "googlepixel8", isImplemented: false }, // 未実装
+                { name: "Google Pixel 7", url: "googlepixel7", isImplemented: true }
             ],
             Samsung: [
-                { name: "Galaxy S22", url: "galaxys22" },
-                { name: "Galaxy S23", url: "galaxys23" }
+                { name: "Galaxy S22", url: "galaxys22", isImplemented: true },
+                { name: "Galaxy S23", url: "galaxys23", isImplemented: true }
             ]
         }
     };
@@ -86,10 +91,7 @@
         selectedOS = os;
         selectedMaker = '';
         
-        // ★修正箇所: クリックされたボタンの親要素（.btn-group）の中にあるボタンの色を全てリセットする
         element.parentNode.querySelectorAll('.btn-select').forEach(b => b.classList.remove('active'));
-        
-        // クリックされたボタンをアクティブにする
         element.classList.add('active');
 
         const makerContainer = document.getElementById('maker-buttons');
@@ -107,6 +109,7 @@
         document.getElementById('step-maker').classList.remove('hidden');
         document.getElementById('step-device').classList.add('hidden');
         document.getElementById('submit-btn').classList.add('hidden');
+        document.getElementById('error-msg').classList.add('hidden');
     }
 
     function selectMaker(maker, element) {
@@ -121,17 +124,26 @@
         const devices = database[selectedOS][maker];
         devices.forEach(device => {
             const opt = document.createElement('option');
-            opt.value = device.url; // ここに "iphone13" などが入ります
+            opt.value = device.url;
             opt.innerText = device.name;
+            // datasetに実装状況を記録
+            opt.dataset.implemented = device.isImplemented; 
             deviceSelect.appendChild(opt);
         });
 
         document.getElementById('step-device').classList.remove('hidden');
+        document.getElementById('submit-btn').classList.add('hidden');
+        document.getElementById('error-msg').classList.add('hidden');
     }
 
     function enableSubmit() {
         const deviceSelect = document.getElementById('device-select');
         const submitBtn = document.getElementById('submit-btn');
+        const errorMsg = document.getElementById('error-msg');
+        
+        // 機種を変更したらエラーメッセージを一旦隠す
+        errorMsg.classList.add('hidden');
+
         if (deviceSelect.value) {
             submitBtn.classList.remove('hidden');
         } else {
@@ -139,12 +151,22 @@
         }
     }
 
-    // 【重要】apprentice.html へパラメータ付きで遷移させる関数
     function goToProcedure() {
-        const deviceKey = document.getElementById('device-select').value;
+        const deviceSelect = document.getElementById('device-select');
+        const deviceKey = deviceSelect.value;
+        const selectedOption = deviceSelect.options[deviceSelect.selectedIndex];
+        const errorMsg = document.getElementById('error-msg');
+        
         if (deviceKey) {
-            // 例: apprentice.html?device=iphone13 にジャンプします
-            window.location.href = "apprentice.html?device=" + deviceKey;
+            // isImplemented が false (文字列の"false") の場合は遷移せずエラー表示
+            if (selectedOption.dataset.implemented === "false") {
+                errorMsg.innerText = "この機種の交換手順は見つかりませんでした。";
+                errorMsg.classList.remove('hidden');
+            } else {
+                // 実装済みの場合は遷移
+                errorMsg.classList.add('hidden');
+                window.location.href = "apprentice.html?device=" + deviceKey;
+            }
         }
     }
 </script>
