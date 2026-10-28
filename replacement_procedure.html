@@ -133,28 +133,6 @@
         .step-card.active-focus .btn-complete:hover { background: var(--primary); color: #fff; transform: translateY(-2px); }
         .step-card.completed .btn-complete { background: var(--success); color: #fff; border-color: var(--success); animation: none; }
 
-        /* ─── AI画像判定UI ─── */
-        .ai-check-area {
-            margin-top: 24px; padding-top: 20px;
-            border-top: 1px dashed var(--border-color);
-        }
-        .btn-ai-camera {
-            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-            width: 100%; padding: 14px; background: rgba(59, 130, 246, 0.05);
-            color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.4); border-radius: 12px;
-            font-size: 15px; font-weight: bold; cursor: pointer; transition: all 0.2s;
-        }
-        .step-card.active-focus .btn-ai-camera { border-color: var(--primary); color: var(--primary); }
-        .btn-ai-camera:hover { background: var(--primary); color: #fff; }
-        
-        .ai-feedback { 
-            margin-top: 16px; font-size: 14px; padding: 16px; 
-            border-radius: 12px; display: none; background: #0f172a;
-        }
-        .ai-loading { color: var(--warning); display: flex; align-items: center; gap: 8px; font-weight: bold; animation: pulse-text 1.5s infinite; }
-        .ai-success { color: var(--success); display: flex; align-items: center; gap: 8px; font-weight: bold; }
-        @keyframes pulse-text { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-
         /* ─── 音声アシストマイク UI ─── */
         .mic-wrapper {
             position: fixed; bottom: 30px; right: 30px; z-index: 1000;
@@ -397,13 +375,6 @@
                     ${imagesHtml}
                 </div>
                 
-                <div class="ai-check-area">
-                    <button class="btn-ai-camera" onclick="document.getElementById('file-input-${index}').click()">
-                        📸 AIカメラで今の状態を診断する
-                    </button>
-                    <input type="file" id="file-input-${index}" accept="image/*" capture="environment" style="display:none;" onchange="handleAIVision(event, ${index})">
-                    <div class="ai-feedback" id="ai-feedback-${index}"></div>
-                </div>
             `;
             container.appendChild(card);
 
@@ -418,25 +389,6 @@
         initSpeechRecognition();
         initEmergencyButton();
     });
-
-    // ─── 1. AI画像判定 ───
-    function handleAIVision(event, index) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const feedbackBox = document.getElementById(`ai-feedback-${index}`);
-        feedbackBox.style.display = 'block';
-        feedbackBox.innerHTML = '<span class="ai-loading">🔄 AIモデル（Vision）が画像を解析しています...</span>';
-
-        setTimeout(() => {
-            feedbackBox.innerHTML = '<span class="ai-success">✅ AI判定クリア！部品の欠落・誤りは見当たりません。</span>';
-            speakText("画像解析が完了しました。問題ありません、ステップを完了します。");
-            
-            if (!savedProgress[index]) {
-                handleCheckChange(index, true);
-            }
-        }, 2500);
-    }
 
     // ─── 2. 音声アシスト ───
     function initSpeechRecognition() {
@@ -523,7 +475,6 @@
             }, 400); 
         } else {
             btn.innerHTML = '完了マークをつける';
-            document.getElementById(`ai-feedback-${index}`).style.display = 'none';
             updateStatus();
             updateInterlockingFocus(true);
         }
@@ -702,48 +653,4 @@
     }
 </script>
 </body>
-    <!-- ▼▼ AI相談チャット ここから ▼▼ -->
-<div style="margin: 40px auto; max-width: 800px; padding: 25px; border: 2px solid #0070f3; border-radius: 10px; background: #f0f7ff;">
-  <h3 style="margin-top: 0; color: #0070f3;">🤖 作業で困ったらAIに相談</h3>
-  <p style="font-size: 14px; color: #555;">手順の中で分からないことや、予期せぬトラブル（ネジが外れない、バッテリーが曲がった等）があれば質問してください。AIが安全な対処法をアドバイスします。</p>
-  
-  <textarea id="ai-input" rows="3" style="width: 100%; box-sizing: border-box; padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 16px;" placeholder="例：手順3でバッテリーの両面テープが途中で切れてしまいました。どうすればいいですか？"></textarea>
-  
-  <button id="ai-submit" style="margin-top: 15px; padding: 12px 24px; background: #0070f3; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 16px; width: 100%;">AIに質問を送信する</button>
-
-  <div id="ai-response" style="margin-top: 20px; white-space: pre-wrap; line-height: 1.6; font-size: 15px; color: #333; font-weight: bold;"></div>
-</div>
-
-<script>
-  document.getElementById('ai-submit').addEventListener('click', async () => {
-    const input = document.getElementById('ai-input');
-    const responseBox = document.getElementById('ai-response');
-    const prompt = input.value.trim();
-
-    if (!prompt) return;
-
-    responseBox.textContent = 'AIが安全な対処法を考えています...（数秒お待ちください）';
-    responseBox.style.color = '#666';
-
-    try {
-      // Netlify Function（裏側のAPI）に質問を送信
-      const res = await fetch('/.netlify/functions/ask-ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt })
-      });
-      const data = await res.json();
-      
-      if (data.reply) {
-        responseBox.textContent = '【AIの回答】\n' + data.reply;
-        responseBox.style.color = '#000';
-      } else {
-        responseBox.textContent = 'エラー: ' + (data.error || '回答が得られませんでした。');
-      }
-    } catch (err) {
-      responseBox.textContent = '通信エラーが発生しました。インターネット接続を確認してください。';
-    }
-  });
-</script>
-<!-- ▲▲ AI相談チャット ここまで ▲▲ -->
 </html>
