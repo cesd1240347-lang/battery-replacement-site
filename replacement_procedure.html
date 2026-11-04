@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>バッテリー交換手順 - AI搭載ハンズフリーアシスト版</title>
+    <title>バッテリー交換手順</title>
     <link rel="icon" href="./images/favicon.ico" type="image/x-icon">
     <style>
         :root {
@@ -133,34 +133,6 @@
         .step-card.active-focus .btn-complete:hover { background: var(--primary); color: #fff; transform: translateY(-2px); }
         .step-card.completed .btn-complete { background: var(--success); color: #fff; border-color: var(--success); animation: none; }
 
-        /* ─── 音声アシストマイク UI ─── */
-        .mic-wrapper {
-            position: fixed; bottom: 30px; right: 30px; z-index: 1000;
-            display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
-        }
-        .mic-btn {
-            width: 64px; height: 64px; border-radius: 50%;
-            background: var(--bg-card); border: 2px solid var(--border-color);
-            color: var(--text-main); font-size: 26px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; box-shadow: 0 10px 25px rgba(0,0,0,0.5); transition: all 0.3s;
-        }
-        .mic-btn.listening {
-            background: rgba(239, 68, 68, 0.1); border-color: var(--danger); color: var(--danger);
-            animation: pulse-danger 2s infinite;
-        }
-        @keyframes pulse-danger {
-            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
-            70% { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-        }
-        .mic-status {
-            background: rgba(15, 23, 42, 0.9); padding: 10px 16px; border-radius: 12px;
-            font-size: 13px; font-weight: bold; border: 1px solid var(--border-color);
-            backdrop-filter: blur(4px); pointer-events: none; opacity: 0; transform: translateX(20px); transition: all 0.3s;
-        }
-        .mic-wrapper:hover .mic-status, .mic-btn.listening + .mic-status { opacity: 1; transform: translateX(0); }
-        .mic-toast { color: #93c5fd; font-size: 12px; margin-top: 4px; font-weight: normal; }
 
         /* 最終アクションエリア */
         .action-area { text-align: center; margin-top: 80px; padding-top: 40px; border-top: 1px dashed var(--border-color); }
@@ -179,8 +151,8 @@
         /* ▼▼▼ 緊急ボタンのスタイル ▼▼▼ */
         .emergency-btn {
             position: fixed;
-            bottom: 30px; /* マイクボタンとかぶらないよう位置を調整 */
-            right: 110px;
+            bottom: 30px; /* 緊急ボタンの配置 */
+            right: 30px;
             width: 65px;
             height: 65px;
             background-color: #ef4444; /* 赤色 */
@@ -221,14 +193,17 @@
         }
         /* ▲▲▲ 緊急ボタンのスタイルここまで ▲▲▲ */
     </style>
+    <!-- 全ページ共通：配色とテーマ切替 -->
+    <script src="./theme.js"></script>
+    <link rel="stylesheet" href="./theme.css">
 </head>
 <body>
 
-<!-- Web Speech API用 マイクボタン -->
+
 
 <div class="wrapper">
     <header>
-        <div class="header-badge">AI Assistant & Hands-Free Mode</div>
+        <div class="header-badge">Battery Replacement Guide</div>
         <h1 id="procedure-title">バッテリー交換手順</h1>
     </header>
 
@@ -318,10 +293,6 @@
     let totalStepsGlobal = 0;
     let savedProgress = [];
 
-    // Web Speech API 用の変数
-    let recognition;
-    let isListening = false;
-
     window.addEventListener('DOMContentLoaded', () => {
         const data = procedureDatabase["googlepixel7"];
         const container = document.getElementById('steps-container');
@@ -379,81 +350,9 @@
 
         updateStatus();
         updateInterlockingFocus(false);
-        initSpeechRecognition();
         initEmergencyButton();
     });
 
-    // ─── 2. 音声アシスト ───
-    function initSpeechRecognition() {
-        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            recognition = new SpeechRecognition();
-            recognition.lang = 'ja-JP';
-            recognition.continuous = true;
-            recognition.interimResults = false;
-
-            recognition.onresult = (event) => {
-                const transcript = event.results[event.results.length - 1][0].transcript.trim();
-                document.getElementById('mic-toast').innerText = `認識: 「${transcript}」`;
-                
-                if (transcript.includes('完了') || transcript.includes('次') || transcript.includes('オッケー') || transcript.includes('進む')) {
-                    let targetIndex = savedProgress.findIndex(s => !s);
-                    if (targetIndex !== -1 && targetIndex < totalStepsGlobal) {
-                        handleCheckChange(targetIndex, true);
-                        speakText(`ステップ${targetIndex + 1}を完了しました。`);
-                    }
-                } 
-                else if (transcript.includes('戻る') || transcript.includes('前')) {
-                    let targetIndex = savedProgress.findIndex(s => !s) - 1;
-                    if(targetIndex < 0 && savedProgress.every(s=>s)) targetIndex = totalStepsGlobal - 1;
-                    if(targetIndex >= 0) {
-                        handleCheckChange(targetIndex, false);
-                        speakText(`一つ前のステップに戻りました。`);
-                    }
-                }
-            };
-
-            recognition.onend = () => {
-                if (isListening) recognition.start();
-            };
-        } else {
-            document.getElementById('mic-status-text').innerText = "音声認識非対応のブラウザです";
-        }
-    }
-
-    function toggleMic() {
-        if (!recognition) {
-            alert("ブラウザが音声認識に対応していません。(ChromeやSafari等をご利用ください)");
-            return;
-        }
-        
-        const btnMic = document.getElementById('btn-mic');
-        const statusText = document.getElementById('mic-status-text');
-        const toastText = document.getElementById('mic-toast');
-        
-        if (isListening) {
-            recognition.stop();
-            isListening = false;
-            btnMic.classList.remove('listening');
-            statusText.innerText = "音声アシスト：OFF";
-            toastText.innerText = "タップしてマイクをON";
-        } else {
-            recognition.start();
-            isListening = true;
-            btnMic.classList.add('listening');
-            statusText.innerText = "ハンズフリーモード動作中";
-            toastText.innerText = "「次へ」「戻る」と話してください";
-            speakText("音声アシストを開始します。作業中は声で操作できます。");
-        }
-    }
-
-    function speakText(text) {
-        if ('speechSynthesis' in window) {
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'ja-JP';
-            speechSynthesis.speak(utterance);
-        }
-    }
 
     // ─── 3. 状態管理・スクロール制御 ───
     window.handleCheckChange = function(index, willBeChecked) {
@@ -601,7 +500,6 @@
             msgElement.style.color = "var(--success)";
             nextBtn.classList.add('ready');
             nextBtn.innerHTML = "見事です！動作確認（トラブルシューティング）へ進む";
-            if(isListening) speakText("お疲れ様でした。すべての工程が完了しました。最終確認へ進んでください。");
         } else {
             msgElement.innerText = "焦らず、ひとつずつ確実に進めましょう";
             msgElement.style.color = "inherit";

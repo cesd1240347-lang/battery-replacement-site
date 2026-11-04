@@ -141,46 +141,6 @@
         .btn-back { display: inline-block; margin-top: 24px; color: var(--text-sub); text-decoration: none; font-size: 13px; font-weight: 700; transition: color 0.2s; }
         .btn-back:hover { color: #fff; }
 
-        /* ─── 【NEW】AI Copilot (音声操作) HUD パネル ─── */
-        .hud-copilot {
-            position: fixed;
-            bottom: 24px;
-            left: 24px;
-            width: 260px;
-            background: rgba(11, 19, 41, 0.85);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(56, 189, 248, 0.3);
-            border-radius: 16px;
-            padding: 16px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-            z-index: 9998;
-            font-family: monospace;
-            transition: all 0.3s ease;
-        }
-        .hud-copilot-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding-bottom: 8px;
-        }
-        .hud-copilot-title { font-size: 12px; font-weight: 900; color: var(--accent); letter-spacing: 0.1em; display: flex; align-items: center; gap: 6px; }
-        .pulse-dot { width: 8px; height: 8px; background: #64748b; border-radius: 50%; box-shadow: 0 0 8px transparent; }
-        .pulse-dot.listening { background: var(--danger); box-shadow: 0 0 12px var(--danger); animation: blink 1.5s infinite; }
-        .hud-status-text { font-size: 11px; color: #94a3b8; }
-        
-        .hud-copilot-content { font-size: 13px; color: #fff; margin-bottom: 12px; min-height: 40px; display: flex; align-items: center; }
-        .cmd-hint { color: #64748b; font-size: 11px; }
-        .cmd-hint span { color: #a5b4fc; }
-
-        .btn-mic {
-            width: 100%; padding: 8px; background: rgba(56, 189, 248, 0.1);
-            border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px;
-            color: var(--accent); font-weight: bold; cursor: pointer; font-size: 12px; transition: all 0.2s;
-        }
-        .btn-mic:hover { background: rgba(56, 189, 248, 0.2); }
-        .btn-mic.active { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.4); color: var(--danger); }
 
         /* ─── 【NEW】カメラモニター (ピクチャー・イン・ピクチャー風) ─── */
         .hud-camera {
@@ -233,12 +193,13 @@
         .confetti-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 99999; }
 
         @media (max-width: 768px) {
-            .hud-copilot { bottom: auto; top: 16px; left: 16px; width: calc(100% - 32px); z-index: 99999; }
             .hud-camera { width: 140px; height: 105px; bottom: 16px; right: 16px; }
             .emergency-btn { bottom: 140px; }
-            .wrapper { padding-top: 160px; } /* スマホ時は上部にCopilotが来るため余白追加 */
         }
     </style>
+    <!-- 全ページ共通：配色とテーマ切替 -->
+    <script src="./theme.js"></script>
+    <link rel="stylesheet" href="./theme.css">
 </head>
 <body>
 
@@ -273,23 +234,6 @@
     </div>
 </div>
 
-<!-- 【NEW】AI Copilot パネル -->
-<div class="hud-copilot">
-    <div class="hud-copilot-header">
-        <div class="hud-copilot-title">
-            <div class="pulse-dot" id="voice-pulse"></div>
-            AI COPILOT
-        </div>
-        <div class="hud-status-text" id="voice-status">マイクはオフです</div>
-    </div>
-    <div class="hud-copilot-content" id="voice-result">
-        音声操作を使用できます。
-    </div>
-    <div class="cmd-hint">
-        有効なコマンド: <span>「完了」「次」「緊急」</span>
-    </div>
-    <button class="btn-mic" id="btn-toggle-mic" style="margin-top: 10px;">🎙️ 音声コマンドを開始</button>
-</div>
 
 <!-- 【NEW】カメラモニター HUD -->
 <div class="hud-camera" id="camera-hud">
@@ -334,9 +278,6 @@
         }
     };
 
-    // グローバル変数で現在の最新ステップのインデックスを保持
-    let currentActiveIndex = 0;
-    let totalStepsGlobal = 0;
 
     window.addEventListener('DOMContentLoaded', () => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -349,7 +290,6 @@
 
             const container = document.getElementById('steps-container');
             const totalSteps = data.steps.length;
-            totalStepsGlobal = totalSteps;
             
             let savedProgress = null;
             try {
@@ -404,7 +344,7 @@
                 });
             });
 
-            // チェック状態変更処理を関数化（音声コマンドからも呼べるように）
+            // チェック状態変更処理を共通関数化
             window.handleCheckChange = function(index, isChecked) {
                 const card = document.getElementById(`step-card-${index}`);
                 const checkbox = document.getElementById(`check-${index}`);
@@ -474,9 +414,6 @@
     function updateInterlockingFocus(progressArray, total, shouldScroll = false) {
         let firstUnfinishedIndex = progressArray.findIndex(status => status === false);
         if (firstUnfinishedIndex === -1) firstUnfinishedIndex = total;
-        
-        // グローバル変数に現在のステップを保存（音声コマンドで使うため）
-        currentActiveIndex = firstUnfinishedIndex;
 
         let targetCard = null;
         for (let i = 0; i < total; i++) {
@@ -504,99 +441,6 @@
         }
     }
 
-    /* ─── 🎤 【NEW】Web Speech API (ハンズフリー音声操作) ─── */
-    const btnMic = document.getElementById('btn-toggle-mic');
-    const voiceStatus = document.getElementById('voice-status');
-    const voiceResult = document.getElementById('voice-result');
-    const pulseDot = document.getElementById('voice-pulse');
-    
-    let recognition = null;
-    let isListening = false;
-
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        recognition = new SpeechRecognition();
-        recognition.lang = 'ja-JP';
-        recognition.continuous = true; // 連続で聞き取る
-        recognition.interimResults = false;
-
-        recognition.onstart = () => {
-            isListening = true;
-            pulseDot.classList.add('listening');
-            btnMic.classList.add('active');
-            btnMic.innerText = '🛑 マイクを停止';
-            voiceStatus.innerText = '音声コマンド待機中...';
-            voiceStatus.style.color = 'var(--danger)';
-            voiceResult.innerText = '作業しながら「完了」と発話してください';
-        };
-
-        recognition.onresult = (event) => {
-            const last = event.results.length - 1;
-            const transcript = event.results[last][0].transcript.trim().toLowerCase();
-            console.log("認識結果:", transcript);
-
-            voiceResult.innerHTML = `認識: <strong style="color:var(--accent)">「${transcript}」</strong>`;
-
-            // 【コマンド判定】
-            if (transcript.includes('完了') || transcript.includes('次') || transcript.includes('チェック') || transcript.includes('できた')) {
-                // 現在のアクティブなステップにチェックを入れる
-                if (currentActiveIndex < totalStepsGlobal) {
-                    voiceResult.innerHTML += `<br><span style="color:var(--success)">✅ STEP ${currentActiveIndex + 1} を完了しました</span>`;
-                    window.handleCheckChange(currentActiveIndex, true);
-                } else {
-                    voiceResult.innerHTML += `<br><span>すべてのステップが完了しています。</span>`;
-                }
-            } 
-            else if (transcript.includes('緊急') || transcript.includes('助けて') || transcript.includes('ファイヤー') || transcript.includes('発火')) {
-                voiceResult.innerHTML += `<br><span style="color:var(--danger)">🚨 緊急モード起動！消火ページへ移行します</span>`;
-                setTimeout(() => { window.location.href = 'emergency.html'; }, 1000);
-            }
-        };
-
-        recognition.onerror = (event) => {
-            console.error('Speech recognition error', event.error);
-            if(event.error !== 'no-speech') {
-                voiceStatus.innerText = 'エラー発生';
-                stopListening();
-            }
-        };
-
-        recognition.onend = () => {
-            // continuousが途切れた場合は自動再起動（手動で停止した場合を除く）
-            if (isListening) {
-                recognition.start();
-            }
-        };
-
-    } else {
-        btnMic.disabled = true;
-        btnMic.innerText = 'お使いのブラウザは音声操作非対応です';
-        voiceStatus.innerText = '非対応ブラウザ';
-    }
-
-    function stopListening() {
-        isListening = false;
-        if(recognition) recognition.stop();
-        pulseDot.classList.remove('listening');
-        btnMic.classList.remove('active');
-        btnMic.innerText = '🎙️ 音声コマンドを開始';
-        voiceStatus.innerText = 'マイクはオフです';
-        voiceStatus.style.color = '#94a3b8';
-    }
-
-    btnMic.addEventListener('click', () => {
-        if (!recognition) return;
-        if (isListening) {
-            stopListening();
-        } else {
-            // セキュリティ上、HTTPSかlocalhostでないとマイクは許可されない
-            try {
-                recognition.start();
-            } catch(e) {
-                console.error(e);
-            }
-        }
-    });
 
 
     /* ─── 📷 【NEW】MediaDevices API (カメラモニター) ─── */

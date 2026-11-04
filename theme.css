@@ -1,0 +1,247 @@
+/*
+ * 全ページ共通テーマ（各ページの元の<style>の後に読み込まれる）。
+ * ダーク表示を基準に、元からライトだったfront / apprenticeのみダーク用の上書きを定義。
+ * カラーの直接指定が多いページでは個別に読みやすさを補正。
+ */
+html[data-theme="dark"] {
+  --theme-toggle-bg: #1e293b;
+  --theme-toggle-text: #f8fafc;
+  --theme-toggle-border: #64748b;
+}
+html[data-theme="light"] {
+  --theme-toggle-bg: #ffffff;
+  --theme-toggle-text: #0f172a;
+  --theme-toggle-border: #94a3b8;
+}
+html { color-scheme: dark; }
+html[data-theme="light"] { color-scheme: light; }
+
+/* 配色の切替ボタン。画面右下の緊急ボタンや上部の固定ステータスから離して配置する。 */
+.site-theme-toggle {
+  position: fixed;
+  left: max(12px, env(safe-area-inset-left));
+  bottom: max(14px, env(safe-area-inset-bottom));
+  z-index: 8000;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 102px;
+  min-height: 44px;
+  padding: 8px 14px;
+  font: 700 13px/1.3 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  letter-spacing: normal;
+  background: var(--theme-toggle-bg);
+  color: var(--theme-toggle-text);
+  border: 1px solid var(--theme-toggle-border);
+  border-radius: 99px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, .22);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background-color .2s, color .2s, border-color .2s;
+}
+.site-theme-toggle:hover { filter: brightness(1.08); }
+.site-theme-toggle:focus-visible { outline: 3px solid #3b82f6; outline-offset: 3px; }
+
+/* 共通：切替時に自然に色が変わる。機能部品のアニメーションは邪魔しない。 */
+body { transition: background-color .2s ease, color .2s ease; }
+
+/* -- front.html：元のライトの見た目を残し、ダーク設定だけを追加 -- */
+html[data-page="front"][data-theme="dark"] body { background-color: #0f172a; color: #e2e8f0; }
+html[data-page="front"][data-theme="dark"] header { background-color: #17243b; }
+html[data-page="front"][data-theme="dark"] .container { background: #1e293b; box-shadow: 0 4px 18px rgba(0,0,0,.3); }
+html[data-page="front"][data-theme="dark"] h2 { color: #f1f5f9; }
+html[data-page="front"][data-theme="dark"] label { color: #cbd5e1; }
+html[data-page="front"][data-theme="dark"] .btn-select,
+html[data-page="front"][data-theme="dark"] select { background: #28384f; color: #f8fafc; border-color: #52647e; }
+html[data-page="front"][data-theme="dark"] .btn-select:hover { background: #324964; }
+html[data-page="front"][data-theme="dark"] .btn-select.active { background: #287fbd; color: #fff; border-color: #60a5fa; }
+
+/* -- apprentice.html：元のライトと同じ設計をダークにも -- */
+html[data-page="apprentice"][data-theme="dark"] {
+  --bg-color: #0f172a; --card-bg: #1e293b;
+  --text-main: #e8eef8; --text-sub: #a8b9cf;
+  --warning-bg: #3b2e20; --warning-text: #fcd34d;
+}
+html[data-page="apprentice"][data-theme="dark"] h1 { color: #f8fafc; }
+html[data-page="apprentice"][data-theme="dark"] .meta-item { background: #2c3f5f; }
+html[data-page="apprentice"][data-theme="dark"] .warning-box ul { color: #fde68a; }
+html[data-page="apprentice"][data-theme="dark"] .tool-card { background: #253750; border-color: #475569; }
+html[data-page="apprentice"][data-theme="dark"] .tool-name { color: #f8fafc; }
+html[data-page="apprentice"][data-theme="dark"] .tool-image-placeholder { background: #334155; }
+html[data-page="apprentice"][data-theme="dark"] .modal-content { background: #1e293b; }
+
+/* -- apprentice2.html：元のダーク版をライトに戻す -- */
+html[data-page="apprentice2"][data-theme="light"] {
+  --bg-color: #f8fafc; --card-bg: #ffffff;
+  --text-main: #1e293b; --text-sub: #475569;
+}
+html[data-page="apprentice2"][data-theme="light"] h1 { color: #0f172a; }
+html[data-page="apprentice2"][data-theme="light"] .meta-item { background: #f1f5f9; }
+html[data-page="apprentice2"][data-theme="light"] .tool-card { background: #f8fafc; border-color: #d2dce9; }
+html[data-page="apprentice2"][data-theme="light"] .tool-name { color: #1e293b; }
+html[data-page="apprentice2"][data-theme="light"] .tool-image-placeholder { background: #f1f5f9; }
+html[data-page="apprentice2"][data-theme="light"] .modal-content { background: white; }
+
+/* 両工具ページ：共通のカードボタンなどの色修正 */
+html[data-page="apprentice"][data-theme="dark"] .section-title,
+html[data-page="apprentice2"][data-theme="dark"] .section-title { color: #f8fafc; }
+html[data-page="apprentice2"][data-theme="light"] .section-title { color: #0f172a; }
+html[data-page="apprentice2"][data-theme="light"] .warning-box ul { color: #78350f; }
+
+/* -- replacement_procedure.html：CSS変数で背景、直接指定の進捗部品も補正 -- */
+html[data-page="replacement_procedure"][data-theme="light"] {
+  --bg-base: #f1f5f9; --bg-card: #ffffff;
+  --border-color: #cbd5e1; --text-main: #111827; --text-sub: #475569;
+}
+html[data-page="replacement_procedure"][data-theme="light"] .status-container {
+  background: rgba(255,255,255,.92); box-shadow: 0 4px 20px rgba(15,23,42,.09);
+}
+html[data-page="replacement_procedure"][data-theme="light"] .progress-bar-bg { background: #dce5f0; box-shadow: inset 0 1px 2px rgba(15,23,42,.12); }
+html[data-page="replacement_procedure"][data-theme="light"] .step-card.completed { background: #edfdf5; border-color: #b4e7ce; }
+html[data-page="replacement_procedure"][data-theme="light"] .step-card.active-focus { box-shadow: 0 8px 24px rgba(15,23,42,.1), 0 0 0 4px rgba(59,130,246,.15); }
+html[data-page="replacement_procedure"][data-theme="light"] .step-tools { background: #f1f5f9; }
+
+/* -- caution.html：注意表示の色を失わず、細かく固定された暗色指定を補正 -- */
+html[data-page="caution"][data-theme="light"] {
+  --bg: #f1f5f9; --bg-mid: #e2e8f0;
+  --card: #ffffff; --card-border: #ced8e5; --card-hover: #f8fafc;
+  --text: #0f172a; --text-sub: #475569; --text-dim: #52657d;
+  --accent: #0369a1; --accent-glow: rgba(3,105,161,.09);
+  --danger-glow: rgba(220,38,38,.07); --warning-glow: rgba(245,158,11,.1);
+}
+html[data-page="caution"][data-theme="light"] #progress-track { background: #e2e8f0; }
+html[data-page="caution"][data-theme="light"] .section-title,
+html[data-page="caution"][data-theme="light"] .mark-name,
+html[data-page="caution"][data-theme="light"] .geo-map-title,
+html[data-page="caution"][data-theme="light"] .quiz-question,
+html[data-page="caution"][data-theme="light"] .notice-heading,
+html[data-page="caution"][data-theme="light"] .route-title { color: #0f172a; }
+html[data-page="caution"][data-theme="light"] p { color: #334155; }
+html[data-page="caution"][data-theme="light"] .mark-card,
+html[data-page="caution"][data-theme="light"] .img-card,
+html[data-page="caution"][data-theme="light"] .route-item { background: #f8fafc; }
+html[data-page="caution"][data-theme="light"] .mark-image-box,
+html[data-page="caution"][data-theme="light"] .img-box { background: #fff; }
+html[data-page="caution"][data-theme="light"] .img-cap { background: #eef2f7; color: #334155; border-color: #cbd5e1; }
+html[data-page="caution"][data-theme="light"] .risk-item { background: #f8fafc; }
+html[data-page="caution"][data-theme="light"] .risk-icon { background: #e2e8f0; }
+html[data-page="caution"][data-theme="light"] .risk-text strong { color: #1e293b; }
+html[data-page="caution"][data-theme="light"] .risk-text span { color: #475569; }
+html[data-page="caution"][data-theme="light"] .risk-item.read .risk-text strong { color: #b91c1c; }
+html[data-page="caution"][data-theme="light"] .risk-item.read .risk-text span { color: #334155; }
+html[data-page="caution"][data-theme="light"] .risk-status-badge { background: #e2e8f0; color: #475569; }
+html[data-page="caution"][data-theme="light"] .check-warning-bar { color: #b91c1c; }
+html[data-page="caution"][data-theme="light"] .check-item { border-bottom-color: #dbe3eb; }
+html[data-page="caution"][data-theme="light"] .check-item:hover { background: #f8fafc; }
+html[data-page="caution"][data-theme="light"] .check-box { background: #fff; border-color: #94a3b8; }
+html[data-page="caution"][data-theme="light"] .check-text .main { color: #1e293b; }
+html[data-page="caution"][data-theme="light"] .pq-title { color: #b91c1c; }
+html[data-page="caution"][data-theme="light"] .pq-risk-desc { color: #475569; }
+html[data-page="caution"][data-theme="light"] .tape-game-area { background: #f0f9ff; border-color: #0284c7; }
+html[data-page="caution"][data-theme="light"] .tape-game-title { color: #075985; }
+html[data-page="caution"][data-theme="light"] input[type="range"] { background: #cbd5e1; }
+html[data-page="caution"][data-theme="light"] .geo-map-box { background: linear-gradient(135deg,#ecfdf5,#e0f2fe); }
+html[data-page="caution"][data-theme="light"] .quiz-card { background: linear-gradient(135deg, #f4f6ff, #fff); }
+html[data-page="caution"][data-theme="light"] .btn-quiz { background: #fff; color: #0f172a; }
+html[data-page="caution"][data-theme="light"] .btn-quiz.correct-selected { background: #dcfce7; color: #166534; }
+html[data-page="caution"][data-theme="light"] .btn-quiz.wrong-selected { background: #fee2e2; color: #991b1b; }
+html[data-page="caution"][data-theme="light"] .btn-submit { background: #e2e8f0; color: #64748b; border-color: #cbd5e1; }
+html[data-page="caution"][data-theme="light"] .btn-submit.ready { background: linear-gradient(135deg,#10b981,#059669); color: #fff; }
+html[data-page="caution"][data-theme="light"] .ng-title,
+html[data-page="caution"][data-theme="light"] .ng-chip,
+html[data-page="caution"][data-theme="light"] .emergency-title { color: #b91c1c; }
+html[data-page="caution"][data-theme="light"] .ng-desc,
+html[data-page="caution"][data-theme="light"] .route-desc,
+html[data-page="caution"][data-theme="light"] .notice-lead,
+html[data-page="caution"][data-theme="light"] .notice-foot { color: #475569; }
+html[data-page="caution"][data-theme="light"] .swollen-box .swollen-lead { color: #92400e; }
+html[data-page="caution"][data-theme="light"] .swollen-steps li { color: #334155; }
+html[data-page="caution"][data-theme="light"] .emergency-box p { color: #7f1d1d; }
+/* 注意事項内の一部インラインスタイル（強調文字など）をライトでも読める濃い色にする */
+html[data-page="caution"][data-theme="light"] strong[style*="color:#fca5a5"] { color: #b91c1c !important; }
+html[data-page="caution"][data-theme="light"] p[style*="color:#fff"],
+html[data-page="caution"][data-theme="light"] p[style*="color:#94a3b8"] { color: #334155 !important; }
+
+/* -- lithium-ion_battery.html：記事本文、各種カードの固定ダーク色を変える -- */
+html[data-page="lithium-ion_battery"][data-theme="light"] {
+  --bg: #f1f5f9; --card: #fff; --card-border: #cbd5e1;
+  --text: #0f172a; --text-sub: #475569; --text-muted: #64748b;
+  --accent: #0369a1; --accent-glow: rgba(3,105,161,.1);
+}
+html[data-page="lithium-ion_battery"][data-theme="light"] .btn-back { background: rgba(255,255,255,.95); color: #334155; }
+html[data-page="lithium-ion_battery"][data-theme="light"] .btn-back:hover { background: #f1f5f9; color: #0f172a; }
+html[data-page="lithium-ion_battery"][data-theme="light"] .card.danger { background: linear-gradient(to bottom,#fff,#fff1f2); }
+html[data-page="lithium-ion_battery"][data-theme="light"] .card-icon { background: #f1f5f9; border-color: #cbd5e1; }
+html[data-page="lithium-ion_battery"][data-theme="light"] .card-title,
+html[data-page="lithium-ion_battery"][data-theme="light"] .type-card h5 { color: #0f172a; }
+html[data-page="lithium-ion_battery"][data-theme="light"] p,
+html[data-page="lithium-ion_battery"][data-theme="light"] .feature-list li,
+html[data-page="lithium-ion_battery"][data-theme="light"] .alert-list li { color: #334155; }
+html[data-page="lithium-ion_battery"][data-theme="light"] strong { color: #0f172a; background: #e2e8f0; }
+html[data-page="lithium-ion_battery"][data-theme="light"] .info-box { background: #f8fafc; }
+html[data-page="lithium-ion_battery"][data-theme="light"] .type-card { background: #f8fafc; border-color: #cbd5e1; }
+html[data-page="lithium-ion_battery"][data-theme="light"] .type-tag { background: #e2e8f0; color: #334155; }
+
+/* -- troubleshooting.html：見出し、アコーディオン、説明文を可読化 -- */
+html[data-page="troubleshooting"][data-theme="light"] {
+  --bg-color: #f1f5f9; --card-bg: #fff; --text-main: #0f172a;
+  --text-sub: #475569; --border-color: #cbd5e1;
+}
+html[data-page="troubleshooting"][data-theme="light"] h2,
+html[data-page="troubleshooting"][data-theme="light"] .check-label-title,
+html[data-page="troubleshooting"][data-theme="light"] .accordion-trigger { color: #0f172a; }
+html[data-page="troubleshooting"][data-theme="light"] .check-item:hover { background: #f8fafc; }
+html[data-page="troubleshooting"][data-theme="light"] .accordion-item { background: #f8fafc; }
+html[data-page="troubleshooting"][data-theme="light"] .accordion-trigger:hover { background: #eef2f7; }
+html[data-page="troubleshooting"][data-theme="light"] .accordion-content { background: #fff; }
+html[data-page="troubleshooting"][data-theme="light"] .accordion-inner { color: #334155; }
+html[data-page="troubleshooting"][data-theme="light"] .disposal-alert p { color: #92400e; }
+
+/* -- emergency.html：緊急通報の赤色・電話ボタンは変更しない -- */
+html[data-page="emergency"][data-theme="light"] {
+  --bg-color: #f1f5f9; --text-main: #0f172a; --card-bg: #fff;
+}
+html[data-page="emergency"][data-theme="light"] .step-danger { background: linear-gradient(to right,#fee2e2,#fff); }
+html[data-page="emergency"][data-theme="light"] .step-danger .step-header { color: #b91c1c; }
+html[data-page="emergency"][data-theme="light"] .big-alert { color: #0f172a; }
+html[data-page="emergency"][data-theme="light"] .text-red { color: #b91c1c; }
+html[data-page="emergency"][data-theme="light"] .step-action .step-header { color: #92400e; }
+html[data-page="emergency"][data-theme="light"] .method-box { background: #f1f5f9; }
+html[data-page="emergency"][data-theme="light"] .method-water h3 { color: #1d4ed8; }
+html[data-page="emergency"][data-theme="light"] .method-blanket h3 { color: #c2410c; }
+html[data-page="emergency"][data-theme="light"] .step-num,
+html[data-page="emergency"][data-theme="light"] .highlight { color: #0f172a; }
+html[data-page="emergency"][data-theme="light"] .action-step { background: #e2e8f0; }
+html[data-page="emergency"][data-theme="light"] .step-arrow { color: #64748b; }
+html[data-page="emergency"][data-theme="light"] .highlight-blue { color: #1d4ed8; }
+html[data-page="emergency"][data-theme="light"] .highlight-orange { color: #b45309; }
+html[data-page="emergency"][data-theme="light"] .info-note { color: #1e40af; }
+
+/* -- experiment：拡張子なしの開発用ページ。カメラ・進捗管理はそのまま -- */
+html[data-page="experiment"][data-theme="light"] {
+  --bg-color: #f1f5f9; --card-bg: #fff; --card-border: #cbd5e1;
+  --text-main: #0f172a; --text-sub: #475569; --text-highlight: #0369a1;
+}
+html[data-page="experiment"][data-theme="light"] .status-card { background: rgba(255,255,255,.94); box-shadow: 0 8px 22px rgba(15,23,42,.08); }
+html[data-page="experiment"][data-theme="light"] .status-text { color: #0f172a; }
+html[data-page="experiment"][data-theme="light"] .progress-bar-bg { background: #e2e8f0; border-color: #cbd5e1; }
+html[data-page="experiment"][data-theme="light"] .step-card.locked::after { background: #e2e8f0; }
+html[data-page="experiment"][data-theme="light"] .step-card.completed { background: #e9faf1; }
+html[data-page="experiment"][data-theme="light"] .phase-badge { color: #4338ca; }
+html[data-page="experiment"][data-theme="light"] .btn-back:hover { color: #0f172a; }
+/* ライトモードの警告ボタンと進捗表示は文字のコントラストを確保 */
+html[data-page="caution"][data-theme="light"] { --success: #047857; }
+html[data-page="caution"][data-theme="light"] .section-num.success { background: #047857; }
+html[data-page="caution"][data-theme="light"] .btn-geo { background: #047857; }
+html[data-page="caution"][data-theme="light"] .btn-submit.ready { background: linear-gradient(135deg,#047857,#065f46); }
+html[data-page="replacement_procedure"][data-theme="light"] {
+  --primary: #1d4ed8; --success: #047857;
+}
+html[data-page="emergency"][data-theme="light"] h1 { color: #92400e; border-bottom-color: #b45309; }
+html[data-page="experiment"][data-theme="light"] .step-text { color: #334155; }
+html[data-page="experiment"][data-theme="light"] .tool-badge { background: #e2e8f0; color: #334155; }
+html[data-page="experiment"][data-theme="light"] .checkbox-wrapper { background: #f1f5f9; color: #1e293b; }
+html[data-page="experiment"][data-theme="light"] .checkbox-wrapper:hover { color: #0f172a; }
+html[data-page="experiment"][data-theme="light"] .btn-reset { color: #b91c1c; }
+html[data-page="experiment"][data-theme="light"] .btn-next { background: #e2e8f0; color: #64748b; border-color: #cbd5e1; }
+html[data-page="experiment"][data-theme="light"] .btn-next.ready { background: linear-gradient(135deg,#047857,#059669); color: #fff; }
