@@ -214,8 +214,6 @@
         .success-msg.show { display: block; animation: fadeInUp 0.5s ease forwards; }
 
         /* ─── Geo Location Map UI ─── */
-        .locked-disposal-area { filter: blur(8px); pointer-events: none; opacity: 0.6; transition: all 0.5s ease; user-select: none; }
-        .locked-disposal-area.unlocked { filter: blur(0); pointer-events: auto; opacity: 1; }
         .geo-map-box { background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(56, 189, 248, 0.1)); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 16px; padding: 24px; text-align: center; margin-bottom: 24px; }
         .geo-map-title { font-size: 16px; font-weight: bold; color: #fff; margin-bottom: 10px; }
         .btn-geo { background: var(--success); color: #fff; border: none; border-radius: 12px; padding: 16px 24px; font-size: 15px; font-weight: 800; cursor: pointer; box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3); transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; width: 100%; max-width: 350px; justify-content: center; }
@@ -333,7 +331,7 @@
             </a>
         </div>
 
-        <p style="margin-bottom: 20px;">誤った取り扱いは<strong style="color:#fca5a5">発熱・発火・破裂につながる重大なリスク</strong>があります。<br><span style="font-size:13px; color:var(--text-sub);">※各項目をタップして内容をしっかりと確認してください。</span></p>
+        <p style="margin-bottom: 20px;">誤った取り扱いは<strong style="color:#fca5a5">発熱・発火・破裂につながる重大なリスク</strong>があります。<br><span style="font-size:13px; color:var(--text-sub);">※各項目はタップすると「確認済み」にできます（任意）。</span></p>
         
         <ul class="risk-list">
             <li class="risk-item" data-risk="0">
@@ -383,7 +381,7 @@
 
     <div class="card warning-card">
         <div class="section-label"><div class="section-num warning">03</div><div class="section-title">用意したバッテリーは安全ですか？</div></div>
-        <div class="check-warning-bar">⚠️ 粗悪品のリスクを排除するため、すべての項目を確認・チェックしてください。</div>
+        <div class="check-warning-bar">⚠️ 該当する項目を選ぶと、考えられるリスクを確認できます（任意）。</div>
         <ul class="checklist" id="qualityChecklist">
             <li class="check-item" data-index="0"><div class="check-box"><span class="checkmark">✓</span></div><div class="check-text"><div class="main">バッテリー本体に「PSEマーク」がない</div></div></li>
             <li class="check-item" data-index="1"><div class="check-box"><span class="checkmark">✓</span></div><div class="check-text"><div class="main">価格が安すぎる（2,000円未満）</div></div></li>
@@ -406,7 +404,7 @@
         <p>交換した古い電池は<strong style="color:#fca5a5">燃えるゴミへの廃棄は絶対にできません。</strong>収集車内での大規模火災事故につながります。</p>
 
         <div class="tape-game-area" id="tape-game">
-            <div class="tape-game-title">🔐 安全ロック解除：端子を絶縁してください</div>
+            <div class="tape-game-title">端子の絶縁を体験する（任意）</div>
             <p style="font-size: 13px; color: #94a3b8; margin-bottom: 20px;">ショート（発火）を防ぐため、廃棄前に必ず出力端子にテープを貼る必要があります。スライダーを右に引いてテープを貼ってください。</p>
             
             <div class="virtual-battery">
@@ -419,10 +417,10 @@
                 <span class="slider-label" id="slider-txt">スライドしてテープを貼る 👉</span>
                 <input type="range" id="tape-slider" min="0" max="100" value="0">
             </div>
-            <div class="success-msg" id="tape-success-msg">✅ 絶縁完了！回収ルートのロックが解除されました。</div>
+            <div class="success-msg" id="tape-success-msg">✅ スライダー操作完了。実際の廃棄前には端子を適切に絶縁してください。</div>
         </div>
 
-        <div class="locked-disposal-area" id="locked-area">
+        <div class="disposal-area" id="locked-area">
             <div class="geo-map-box">
                 <div class="geo-map-title">🗺️ お住まいの近くの回収ボックスを探す</div>
                 <p style="font-size:13px; color:#94a3b8; margin-bottom: 16px;">GPSを使用して、現在地周辺の協力店（家電量販店等）をGoogleマップで直接表示します。</p>
@@ -494,7 +492,7 @@
     </div>
 
     <div class="action-area">
-        <div class="action-hint" id="scroll-hint">⚠️ リスクの確認、テープ絶縁、クイズへの正解が必要です</div>
+        <div class="action-hint" id="scroll-hint">⚠️ 最後のクイズに正解すると、次のページへ進めます。</div>
         <button id="btn-next-step" class="btn-submit" disabled>
             危険性と廃棄方法を理解して手順へ進む
             <span class="arrow">→</span>
@@ -517,10 +515,9 @@ window.addEventListener('DOMContentLoaded', () => {
         btnToDetails.href = `lithium-ion_battery.html?device=${encodeURIComponent(deviceKey)}`;
     }
 
-    // アンロック条件の管理ステート（動画・安全チェックを必須項目から除外）
-    let risksRead = [false, false, false, false]; 
+    // 次ページへの進行条件は、最後のクイズへの正解のみ。
+    // 途中のリスク確認・品質チェック・絶縁スライダーは任意。
     let checklistChecked = [false, false, false];
-    let isTaped = false;
     let quizCorrect = false; 
 
     // 詳細なリスクデータベース
@@ -550,14 +547,11 @@ window.addEventListener('DOMContentLoaded', () => {
     const riskItems = document.querySelectorAll('.risk-item');
     riskItems.forEach(item => {
         item.addEventListener('click', () => {
-            const idx = parseInt(item.getAttribute('data-risk'));
-            risksRead[idx] = true;
             item.classList.add('read');
             const badge = item.querySelector('.risk-status-badge');
             if (badge) {
                 badge.innerText = '✔ 確認済';
             }
-            checkUnlock();
         });
     });
 
@@ -609,7 +603,6 @@ window.addEventListener('DOMContentLoaded', () => {
     // ── テープ貼りUI ──
     const tapeSlider = document.getElementById('tape-slider');
     const vTape = document.getElementById('v-tape');
-    const lockedArea = document.getElementById('locked-area');
     const successMsg = document.getElementById('tape-success-msg');
     const sliderTxt = document.getElementById('slider-txt');
 
@@ -621,13 +614,10 @@ window.addEventListener('DOMContentLoaded', () => {
         if (val == 100) {
             tapeSlider.disabled = true;
             vTape.style.background = "#10b981";
-            lockedArea.classList.add('unlocked');
             successMsg.classList.add('show');
             sliderTxt.style.color = "#10b981";
             sliderTxt.innerText = "保護が完了しました";
             
-            isTaped = true;
-            checkUnlock();
         }
     });
 
@@ -654,31 +644,17 @@ window.addEventListener('DOMContentLoaded', () => {
         checkUnlock();
     });
 
-    // ── 条件判定統合関数（緩和後） ──
+    // ── 次ページへの進行条件：最後のクイズに正解した場合のみ ──
     function checkUnlock() {
-        const allRisksRead = risksRead.every(val => val === true);
-        
-        // ナビゲーション文言の制御（必要な条件のみチェック）
-        if (!allRisksRead) {
-            scrollHint.style.color = 'var(--danger)';
-            scrollHint.textContent = '⚠️ 02の「性質とリスク」の各項目（4点）をタップして内容を確認してください。';
-        } else if (!isTaped) {
-            scrollHint.style.color = 'var(--accent)';
-            scrollHint.textContent = '⚠️ 04の端子絶縁スライダーを最後まで引いてロックを解除してください。';
-        } else if (!quizCorrect) {
-            scrollHint.style.color = 'var(--primary)';
-            scrollHint.textContent = '⚠️ 最下部の「最終チェッククイズ」に正解すると進むことができます。';
-        }
+        btnNext.disabled = !quizCorrect;
+        btnNext.classList.toggle('ready', quizCorrect);
 
-        // 必須3項目（リスク確認・テープ絶縁・クイズ正解）を満たしていれば進める
-        if (allRisksRead && isTaped && quizCorrect) {
-            btnNext.disabled = false;
-            btnNext.classList.add('ready');
-            scrollHint.style.color = '#10b981';
-            scrollHint.textContent = '✅ すべての安全確認が完了しました。ボタンを押して次へお進みください。';
+        if (quizCorrect) {
+            scrollHint.style.color = 'var(--success)';
+            scrollHint.textContent = '✅ クイズに正解しました。次のページへ進めます。';
         } else {
-            btnNext.disabled = true;
-            btnNext.classList.remove('ready');
+            scrollHint.style.color = 'var(--danger)';
+            scrollHint.textContent = '⚠️ 最後のクイズに正解すると、次のページへ進めます。';
         }
     }
 
